@@ -17,7 +17,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     reducer: rootReducer,
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
-    middleware: getDefaultMiddleware => {
+    middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware().concat(quotesApiSlice.middleware)
     },
     preloadedState,
@@ -25,7 +25,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
   // configure listeners using the provided defaults
   // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
   setupListeners(store.dispatch)
-  return store
+      return store
 }
 
 export const store = makeStore()
