@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 
-import { setCurrentStep, setSteps, setUnsuccess } from "./store/slices"
+import {
+  setCurrentStep,
+  setSteps,
+  setUnsuccess,
+  startConnecting,
+} from "./store/slices"
 import { INTERVAL_TIME, END_GAME_CONDITIONS } from "./constants"
 
 import Controls from "./components/Controls"
@@ -10,8 +15,7 @@ import KeyPressed from "./components/KeyPressed"
 import Score from "./components/Score"
 import Modal from "./components/Modal"
 
-import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react"
-import type { fabric } from "fabric"
+import Blackboard from "./components/Blackboard"
 
 function Slate() {
   const state = useAppSelector((state) => state.playground)
@@ -54,36 +58,11 @@ function Slate() {
     }
   }, [state.totalSuccessful, state.totalUnsuccessful])
 
-  const { editor, onReady } = useFabricJSEditor()
+  useEffect(() => {
+    dispatch(startConnecting())
+  }, [dispatch])
 
-  const onAddCircle = () => {
-    editor?.addCircle()
-  }
-
-  const onAddRectangle = () => {
-    editor?.addRectangle()
-  }
-
-  editor?.canvas.on(
-    //!!!!
-    "mouse:down",
-    function (options: fabric.IEvent<MouseEvent>) {
-      if (!options.e) return
-
-      let evt = options.e
-      let textX = evt.pageX
-      let textY = evt.pageY
-      let value = "test"
-
-      editor.addText(value)
-
-      //createTextInput
-
-      console.log("canvas mouse:down event")
-    },
-  )
-
-  return (
+  /*return (
     <div>
       {state.currentStep}
       <Controls
@@ -93,10 +72,7 @@ function Slate() {
       <RandomKeys isTimerActive={isTimerActive} />
       <KeyPressed isTimerActive={isTimerActive} />
       <Score />
-      <h1>FabricJS React Sample</h1>
-      <button onClick={onAddCircle}>Add circle</button>
-      <button onClick={onAddRectangle}>Add Rectangle</button>
-      <FabricJSCanvas className="sample-canvas" onReady={onReady} />
+      <Blackboard />
 
       {isShowModal && (
         <Modal
@@ -104,6 +80,12 @@ function Slate() {
           isSuccessEndGame={isSuccessEndGame}
         />
       )}
+    </div>
+  )*/
+
+  return (
+    <div>
+      <Blackboard />
     </div>
   )
 }

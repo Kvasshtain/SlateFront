@@ -18,11 +18,14 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.1",
     "@types/fabric": "^5.3.7",
+    "@types/redux-logger": "^3.0.13",
     "fabric": "^5.3.0",
     "fabricjs-react": "^1.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-redux": "^9.1.0"
+    "react-redux": "^9.1.0",
+    "redux-logger": "^3.0.6",
+    "redux-signalr": "^1.2.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.3.4",
