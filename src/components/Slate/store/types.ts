@@ -1,9 +1,4 @@
-export interface IPlaygroundStepsState {
-  step: number
-  currentValue: string | null
-  enteredValue: string | null
-  success: boolean | null
-}
+import type { TextAlign } from "csstype"
 
 export interface ICanvasObject {
   id: string
@@ -15,11 +10,43 @@ export interface ICanvasObject {
   angle: number
 }
 
+export interface IBoardText {
+  text: string | null
+  coordinates: IScreenCoordinates | null
+  style: IFontProperties | null
+}
+
 export interface ISlateState {
-  currentStep: number
-  steps: IPlaygroundStepsState[]
-  totalSuccessful: number
-  totalUnsuccessful: number
+  connectionState: string
+  editMode: EditMode
   currentAddedCanvasObject: ICanvasObject | null
   sentBlackboarObjId: string | null
+  addedBoardText: IBoardText | null
+  canvasClickCoordinates: IScreenCoordinates | null
+}
+
+export enum EditMode {
+  None,
+  Text,
+  //LineDrawing,
+}
+
+export interface IScreenCoordinates {
+  x: number
+  y: number
+}
+
+export interface IFontProperties {
+  fontSize: string
+  fontWeight: string
+  color: string
+  textDecoration: string
+  shadow: string
+  fontStyle: string
+  fontFamily: string
+  stroke: string
+  strokeWidth: string
+  textAlign: TextAlign | undefined
+  lineHeight: number
+  textBackgroundColor: string
 }

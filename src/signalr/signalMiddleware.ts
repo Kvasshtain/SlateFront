@@ -1,7 +1,9 @@
 import type { Middleware } from "redux"
 import {
-  addCanvasObject,
   startConnecting,
+  setConnectionState,
+  addCanvasObject,
+  requestAllCanvasObjects,
   sendCanvasObject,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
@@ -11,10 +13,18 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
     if (startConnecting.match(action)) {
       if (hubConnection.state === "Disconnected") {
         await hubConnection.start()
+
+        store.dispatch(setConnectionState(hubConnection.state))
       }
 
       hubConnection.on("AddObjectOnCanvas", (obj) => {
         store.dispatch(addCanvasObject(obj))
+      })
+    }
+
+    if (requestAllCanvasObjects.match(action)) {
+      hubConnection.invoke("GetAllBoardObjects").catch(function (err: Error) {
+        return console.error(err.toString())
       })
     }
 
