@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 
-import { setMainCanvas, startConnecting } from "./store/slices"
+import {
+  makeFromDocumentBodyDropImageZone,
+  setMainCanvas,
+  startConnecting,
+} from "./store/slices"
 
 import FabJSCanvas from "./components/FabJSCanvas/FabJSCanvas"
 import Blackboard from "./components/Blackboard"
@@ -17,6 +21,7 @@ function Slate() {
     firstRender.current = false
 
     dispatch(startConnecting())
+    dispatch(makeFromDocumentBodyDropImageZone())
   }, [dispatch])
 
   return (

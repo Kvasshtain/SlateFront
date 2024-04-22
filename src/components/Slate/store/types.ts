@@ -41,6 +41,11 @@ export interface IBoardText {
   style: IFontProperties | null
 }
 
+export interface IBoardPicture {
+  file: File | null
+  coordinates: IScreenCoordinates | null
+}
+
 export interface ISlateState {
   connectionState: string
   mainCanvas: fabric.Canvas | null
@@ -53,6 +58,7 @@ export interface ISlateState {
 
   sentBlackboarObjId: string | null
   addedBoardText: IBoardText | null
+  addedBoardPicture: IBoardPicture | null
   canvasClickCoordinates: IScreenCoordinates | null
 }
 

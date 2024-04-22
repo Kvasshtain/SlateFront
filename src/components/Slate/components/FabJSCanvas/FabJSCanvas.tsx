@@ -4,7 +4,7 @@ import React from "react"
 
 import { useEffect, useRef } from "react"
 import { useAppDispatch } from "../../../../app/hooks"
-import { setMainCanvas } from "../../store/slices"
+import { addPictureOnCanvas, setMainCanvas } from "../../store/slices"
 import { fabric } from "fabric"
 
 const FabJSCanvas: React.FC = () => {

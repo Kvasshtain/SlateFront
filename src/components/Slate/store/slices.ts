@@ -14,6 +14,7 @@ export const initialState: ISlateState = {
 
   sentBlackboarObjId: null,
   addedBoardText: null,
+  addedBoardPicture: null,
   canvasClickCoordinates: null,
 }
 
@@ -28,6 +29,8 @@ export const slateSlice = createSlice({
     },
 
     startConnecting: () => {},
+
+    makeFromDocumentBodyDropImageZone: () => {},
 
     setConnectionState: (state, action) => {
       state.connectionState = action.payload
@@ -71,6 +74,10 @@ export const slateSlice = createSlice({
       state.addedBoardText = action.payload
     },
 
+    addPictureOnCanvas: (state, action) => {
+      state.addedBoardPicture = action.payload
+    },
+
     setCanvasClickCoordinates: (state, action) => {
       state.canvasClickCoordinates = action.payload
     },
@@ -81,6 +88,7 @@ export const {
   resetStore,
   setMainCanvas,
   startConnecting,
+  makeFromDocumentBodyDropImageZone,
   setConnectionState,
   requestAllCanvasObjects,
   setEditMode,
@@ -94,6 +102,7 @@ export const {
   sendCanvasObjectModification,
 
   addTextOnCanvas,
+  addPictureOnCanvas,
   setCanvasClickCoordinates,
 } = slateSlice.actions
 export default slateSlice.reducer

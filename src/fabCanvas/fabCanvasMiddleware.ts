@@ -9,6 +9,8 @@ import {
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
   sendCanvasObjectModification,
+  addPictureOnCanvas,
+  makeFromDocumentBodyDropImageZone,
 } from "../components/Slate/store/slices"
 import { fabric } from "fabric"
 import { findById, ucFirst, uuidv4 } from "../utils/canvas-utils"
@@ -188,6 +190,92 @@ const fabCanvasMiddleware = (): Middleware => {
 
       canvas.add(fabText)
       canvas.renderAll()
+    }
+
+    if (makeFromDocumentBodyDropImageZone.match(action)) {
+      const dropZone = document.body
+
+      if (!dropZone) return
+
+      dropZone.addEventListener("dragenter", (e: DragEvent) => {
+        e.preventDefault()
+        //dropZone.classList.add(hoverClassName);
+      })
+
+      dropZone.addEventListener("dragover", (e: DragEvent) => {
+        e.preventDefault()
+        //dropZone.classList.add(hoverClassName);
+      })
+
+      dropZone.addEventListener("dragleave", (e: DragEvent) => {
+        e.preventDefault()
+        //dropZone.classList.remove(hoverClassName);
+      })
+
+      dropZone.addEventListener("drop", (e: DragEvent) => {
+        e.preventDefault()
+
+        const dataTransfer = e.dataTransfer
+        const target = e.target
+
+        if (!dataTransfer) return
+
+        if (!target) return
+
+        const files = Array.from(dataTransfer.files)
+
+        if (!FileReader || files.length <= 0) return
+
+        const file = files[0]
+
+        const left = e.pageX - (target as HTMLElement).offsetLeft
+        const top = e.pageY - (target as HTMLElement).offsetTop
+
+        store.dispatch(
+          addPictureOnCanvas({
+            file: file,
+            coordinates: {
+              x: left,
+              y: top,
+            },
+          }),
+        )
+      })
+    }
+
+    if (addPictureOnCanvas.match(action)) {
+      const boardPicture = action.payload
+
+      const state = store.getState()
+
+      const canvas: fabric.Canvas = state.playground.mainCanvas
+
+      if (!canvas) {
+        next(action)
+        return
+      }
+
+      const fileReader = new FileReader()
+
+      fileReader.onload = () => {
+        const result = fileReader.result as string
+
+        if (result === null) return
+
+        fabric.util.loadImage(result, (img) => {
+          let oImg = new fabric.Image(img)
+
+          oImg.set({
+            left: boardPicture.coordinates.x,
+            top: boardPicture.coordinates.y,
+          })
+
+          canvas.add(oImg)
+          canvas.renderAll()
+        })
+      }
+
+      fileReader.readAsDataURL(boardPicture.file)
     }
 
     //===================================================
