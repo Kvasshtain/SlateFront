@@ -3,8 +3,9 @@ import { combineSlices, configureStore } from "@reduxjs/toolkit"
 import { setupListeners } from "@reduxjs/toolkit/query"
 
 import { slateSlice } from "../components/Slate/store/slices"
-import createSignalMiddleware from "../signalr/signalMiddleware"
-import createHubConnection from "../signalr/createHubConnection"
+import createSignalMiddleware from "../signalR/signalMiddleware"
+import createHubConnection from "../signalR/createHubConnection"
+import fabCanvasMiddleware from "../fabCanvas/fabCanvasMiddleware"
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
@@ -24,6 +25,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware().concat(
         createSignalMiddleware(hubConnection),
+        fabCanvasMiddleware(),
       )
     },
     preloadedState,

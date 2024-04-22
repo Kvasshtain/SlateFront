@@ -2,9 +2,13 @@ import type { Middleware } from "redux"
 import {
   startConnecting,
   setConnectionState,
-  addCanvasObject,
+  addObjectOnCanvas,
   requestAllCanvasObjects,
   sendCanvasObject,
+  scaleObjectOnCanvas,
+  moveObjectOnCanvas,
+  rotateObjectOnCanvas,
+  sendCanvasObjectModification,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
 
@@ -17,8 +21,24 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
         store.dispatch(setConnectionState(hubConnection.state))
       }
 
+      hubConnection.on("AddObjectError", (img) => {
+        //Add error handler!!!
+      })
+
       hubConnection.on("AddObjectOnCanvas", (obj) => {
-        store.dispatch(addCanvasObject(obj))
+        store.dispatch(addObjectOnCanvas(obj))
+      })
+
+      hubConnection.on("MoveObjectOnCanvas", (payload) => {
+        store.dispatch(moveObjectOnCanvas(payload))
+      })
+
+      hubConnection.on("ScaleObjectOnCanvas", (payload) => {
+        store.dispatch(scaleObjectOnCanvas(payload))
+      })
+
+      hubConnection.on("RotateObjectOnCanvas", (payload) => {
+        store.dispatch(rotateObjectOnCanvas(payload))
       })
     }
 
@@ -40,6 +60,16 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
           ScaleX: blackboardObj.scaleX,
           ScaleY: blackboardObj.scaleY,
         })
+        .catch(function (err) {
+          return console.error(err.toString())
+        })
+    }
+
+    if (sendCanvasObjectModification.match(action)) {
+      const objectModificationData = action.payload
+
+      hubConnection
+        .invoke(objectModificationData.method, objectModificationData.payload)
         .catch(function (err) {
           return console.error(err.toString())
         })

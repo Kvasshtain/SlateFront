@@ -4,8 +4,14 @@ import { EditMode, type ISlateState } from "./types"
 
 export const initialState: ISlateState = {
   connectionState: "Disconnected",
+  mainCanvas: null,
   editMode: EditMode.Text, // сделать None и выставлять в не None по запросу пользователя
+
   currentAddedCanvasObject: null,
+  currentObjectMovementData: null,
+  currentObjectScaleData: null,
+  currentObjectRotationData: null,
+
   sentBlackboarObjId: null,
   addedBoardText: null,
   canvasClickCoordinates: null,
@@ -16,6 +22,10 @@ export const slateSlice = createSlice({
   initialState,
   reducers: {
     resetStore: () => initialState,
+
+    setMainCanvas: (state, action) => {
+      state.mainCanvas = action.payload
+    },
 
     startConnecting: () => {},
 
@@ -29,14 +39,32 @@ export const slateSlice = createSlice({
       state.editMode = action.payload
     },
 
-    addCanvasObject: (state, action) => {
+    //===================================================
+    addObjectOnCanvas: (state, action) => {
       state.currentAddedCanvasObject = action.payload
     },
+
+    moveObjectOnCanvas: (state, action) => {
+      state.currentObjectMovementData = action.payload
+    },
+
+    scaleObjectOnCanvas: (state, action) => {
+      state.currentObjectScaleData = action.payload
+    },
+
+    rotateObjectOnCanvas: (state, action) => {
+      state.currentObjectRotationData = action.payload
+    },
+    //===================================================
 
     sendCanvasObject: (state, action) => {
       const blackboardObj = action.payload
 
       state.sentBlackboarObjId = blackboardObj.id
+    },
+
+    sendCanvasObjectModification: (state, action) => {
+      //!!!!!
     },
 
     addTextOnCanvas: (state, action) => {
@@ -51,12 +79,20 @@ export const slateSlice = createSlice({
 
 export const {
   resetStore,
+  setMainCanvas,
   startConnecting,
   setConnectionState,
   requestAllCanvasObjects,
   setEditMode,
-  addCanvasObject,
+
+  addObjectOnCanvas,
+  moveObjectOnCanvas,
+  scaleObjectOnCanvas,
+  rotateObjectOnCanvas,
+
   sendCanvasObject,
+  sendCanvasObjectModification,
+
   addTextOnCanvas,
   setCanvasClickCoordinates,
 } = slateSlice.actions

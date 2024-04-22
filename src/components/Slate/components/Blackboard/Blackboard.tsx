@@ -1,6 +1,10 @@
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
-import { addTextOnCanvas, setEditMode } from "../../store/slices"
+import {
+  addTextOnCanvas,
+  requestAllCanvasObjects,
+  setEditMode,
+} from "../../store/slices"
 import type { IScreenCoordinates } from "../../store/types"
 import { EditMode, type IFontProperties } from "../../store/types"
 import TextInput from "../TextInput"
@@ -11,6 +15,8 @@ const Blackboard: React.FC = () => {
   const state = useAppSelector((state) => state.playground)
 
   const dispatch = useAppDispatch()
+
+  const firstRender = useRef(true)
 
   const fontProperty: IFontProperties = {
     // перенеси в state приложения и сделай настраиваемым и изменяемым
@@ -28,21 +34,22 @@ const Blackboard: React.FC = () => {
     textBackgroundColor: "rgba(0,0,0,0)",
   }
 
+  useEffect(() => {
+    if (!firstRender.current) return
+    firstRender.current = false
+
+    dispatch(requestAllCanvasObjects())
+  }, [dispatch])
+
   const onEndTextEditingHandler = (
     text: string,
     textCoordinates: IScreenCoordinates,
   ): void => {
-    let val = text
-
-    if (val !== null && typeof val !== "undefined") {
-      val = val.trim()
-    }
-
-    if (!val) return
+    dispatch(setEditMode(EditMode.None))
 
     dispatch(
       addTextOnCanvas({
-        text: text,
+        text: text.trim(),
         coordinates: textCoordinates,
         style: fontProperty,
       }),

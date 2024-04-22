@@ -1,4 +1,5 @@
 import type { TextAlign } from "csstype"
+import type { fabric } from "fabric"
 
 export interface ICanvasObject {
   id: string
@@ -10,6 +11,30 @@ export interface ICanvasObject {
   angle: number
 }
 
+export interface IMovementData {
+  id: string
+  left: number
+  top: number
+}
+
+export interface IScaleData {
+  id: string
+  left: number
+  top: number
+  scaleX: number
+  scaleY: number
+}
+
+export interface IRotationData {
+  id: string
+  angle: number
+}
+
+export interface IObjectModificationData {
+  method: string
+  payload: any
+}
+
 export interface IBoardText {
   text: string | null
   coordinates: IScreenCoordinates | null
@@ -18,8 +43,14 @@ export interface IBoardText {
 
 export interface ISlateState {
   connectionState: string
+  mainCanvas: fabric.Canvas | null
   editMode: EditMode
+
   currentAddedCanvasObject: ICanvasObject | null
+  currentObjectMovementData: IMovementData | null
+  currentObjectScaleData: IScaleData | null
+  currentObjectRotationData: IRotationData | null
+
   sentBlackboarObjId: string | null
   addedBoardText: IBoardText | null
   canvasClickCoordinates: IScreenCoordinates | null
