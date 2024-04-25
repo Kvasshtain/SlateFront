@@ -11,6 +11,7 @@ import {
   sendCanvasObjectModification,
   addPictureOnCanvas,
   makeFromDocumentBodyDropImageZone,
+  setEditMode,
 } from "../components/Slate/store/slices"
 import { fabric } from "fabric"
 import { findById, ucFirst, uuidv4 } from "../utils/canvas-utils"
@@ -19,7 +20,9 @@ import type {
   IMovementData,
   IObjectModificationData,
   IRotationData,
-  IScaleData,
+  IScaleData} from "../components/Slate/store/types";
+import {
+  EditMode
 } from "../components/Slate/store/types"
 
 const fabCanvasMiddleware = (): Middleware => {
@@ -276,6 +279,23 @@ const fabCanvasMiddleware = (): Middleware => {
       }
 
       fileReader.readAsDataURL(boardPicture.file)
+    }
+
+    if (setEditMode.match(action)) {
+      const editMode: EditMode = action.payload
+
+      const canvas: fabric.Canvas = store.getState().playground.mainCanvas
+
+      if (!canvas) {
+        next(action)
+        return
+      }
+
+      if (editMode !== EditMode.LineDrawing) {
+        canvas.isDrawingMode = false
+      } else {
+        canvas.isDrawingMode = true
+      }
     }
 
     //===================================================

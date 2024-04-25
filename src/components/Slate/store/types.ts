@@ -65,7 +65,7 @@ export interface ISlateState {
 export enum EditMode {
   None,
   Text,
-  //LineDrawing,
+  LineDrawing,
 }
 
 export interface IScreenCoordinates {

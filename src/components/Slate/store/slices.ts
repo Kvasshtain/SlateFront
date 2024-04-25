@@ -5,7 +5,7 @@ import { EditMode, type ISlateState } from "./types"
 export const initialState: ISlateState = {
   connectionState: "Disconnected",
   mainCanvas: null,
-  editMode: EditMode.Text, // сделать None и выставлять в не None по запросу пользователя
+  editMode: EditMode.None,
 
   currentAddedCanvasObject: null,
   currentObjectMovementData: null,

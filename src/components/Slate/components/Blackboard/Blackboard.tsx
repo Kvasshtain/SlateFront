@@ -56,8 +56,23 @@ const Blackboard: React.FC = () => {
     )
   }
 
+  const addTextButtonClickHandler = () => {
+    dispatch(setEditMode(EditMode.Text))
+  }
+
+  const lineDrawButtonClickHandler = () => {
+    dispatch(setEditMode(EditMode.LineDrawing))
+  }
+
+  const resetEditModeButton = () => {
+    dispatch(setEditMode(EditMode.None))
+  }
+
   return (
     <React.Fragment>
+      <button onClick={addTextButtonClickHandler}>Add text mode</button>
+      <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
+      <button onClick={resetEditModeButton}> Reset edit mode</button>
       {state.canvasClickCoordinates && state.editMode === EditMode.Text && (
         <TextInput
           textX={state.canvasClickCoordinates.x}
