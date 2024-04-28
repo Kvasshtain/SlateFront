@@ -14,16 +14,20 @@ import {
   setEditMode,
 } from "../components/Slate/store/slices"
 import { fabric } from "fabric"
-import { findById, ucFirst, uuidv4 } from "../utils/canvas-utils"
+import {
+  findById,
+  removeCanvasMouseEvents,
+  ucFirst,
+  uuidv4,
+} from "../utils/canvas-utils"
 import type { FabObjectWithId } from "../components/Slate/types"
 import type {
   IMovementData,
   IObjectModificationData,
   IRotationData,
-  IScaleData} from "../components/Slate/store/types";
-import {
-  EditMode
+  IScaleData,
 } from "../components/Slate/store/types"
+import { EditMode } from "../components/Slate/store/types"
 
 const fabCanvasMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
@@ -35,17 +39,13 @@ const fabCanvasMiddleware = (): Middleware => {
         return
       }
 
-      canvas.on("mouse:down", (options: fabric.IEvent<MouseEvent>) => {
-        if (!options.e) return
-
-        const evt = options.e
-
-        store.dispatch(
-          setCanvasClickCoordinates({ x: evt.pageX, y: evt.pageY }),
-        )
-      })
-
       canvas.on("object:added", (evt) => {
+        const state = store.getState()
+
+        if (state.playground.editMode === EditMode.None) return
+
+        if (state.playground.editMode === EditMode.Rectangle) return //Измени логику введя дополнительный признак запрета отправки данных на сервер
+
         let target = evt.target as FabObjectWithId
 
         if (target === undefined) return
@@ -75,6 +75,10 @@ const fabCanvasMiddleware = (): Middleware => {
       })
 
       canvas.on("object:modified", (evt) => {
+        const state = store.getState()
+
+        if (state.playground.editMode === EditMode.Rectangle) return //Измени логику введя дополнительный признак запрета отправки данных на сервер
+
         const action = evt.action as string
 
         if (action === null) return
@@ -282,6 +286,76 @@ const fabCanvasMiddleware = (): Middleware => {
     }
 
     if (setEditMode.match(action)) {
+      let rect: fabric.Rect
+      let dragging: boolean
+
+      let initialPos: {
+        x?: number | undefined
+        y?: number | undefined
+        type?: string | undefined
+      }
+
+      let bounds: {
+        x: number
+        y: number
+        width: number
+        height: number
+      } = {
+        x: 0,
+        y: 0,
+        width: 0,
+        height: 0,
+      }
+
+      const options = {
+        //drawRect: drawRect.checked,
+        //onlyOne: onlyOne.checked,
+        rectProps: {
+          stroke: "red",
+          strokeWidth: 1,
+          fill: "",
+        },
+      }
+
+      const update = (pointer: fabric.Point | undefined) => {
+        if (!initialPos.x) return
+        if (!initialPos.y) return
+
+        if (!pointer) return
+
+        if (initialPos.x > pointer.x) {
+          bounds.x = Math.max(0, pointer.x)
+          bounds.width = initialPos.x - bounds.x
+        } else {
+          bounds.x = initialPos.x
+          bounds.width = pointer.x - initialPos.x
+        }
+        if (initialPos.y > pointer.y) {
+          bounds.y = Math.max(0, pointer.y)
+          bounds.height = initialPos.y - bounds.y
+        } else {
+          bounds.height = pointer.y - initialPos.y
+          bounds.y = initialPos.y
+        }
+
+        console.log("bounds.x", bounds.x)
+        console.log("top: bounds.y", bounds.y)
+        console.log("bounds.width", bounds.width)
+        console.log("bounds.height", bounds.height)
+
+        //if (options.drawRect) {
+        rect.set({ left: bounds.x })
+        rect.set({ top: bounds.y })
+        rect.set({ width: bounds.width })
+        rect.set({ height: bounds.height })
+        rect.set({ dirty: true })
+        canvas.renderAll() // canvas.requestRenderAllBound() //!!!!!!!
+        //}
+      }
+
+      let origX: number
+      let origY: number
+
       const editMode: EditMode = action.payload
 
       const canvas: fabric.Canvas = store.getState().playground.mainCanvas
@@ -291,11 +365,95 @@ const fabCanvasMiddleware = (): Middleware => {
         return
       }
 
-      if (editMode !== EditMode.LineDrawing) {
-        canvas.isDrawingMode = false
-      } else {
-        canvas.isDrawingMode = true
+      canvas.isDrawingMode = false
+      canvas.selection = true
+      removeCanvasMouseEvents(canvas)
+
+      switch (editMode) {
+        case EditMode.None:
+          //removeCanvasMouseEvents(canvas)
+          break
+        case EditMode.LineDrawing:
+          canvas.isDrawingMode = true
+          break
+        case EditMode.Text:
+          canvas.on("mouse:down", (options: fabric.IEvent<MouseEvent>) => {
+            if (!options.e) return
+
+            const evt = options.e
+
+            store.dispatch(
+              setCanvasClickCoordinates({ x: evt.pageX, y: evt.pageY }),
+            )
+          })
+          break
+        case EditMode.Rectangle:
+          canvas.selection = false
+
+          canvas.on("mouse:down", function (e) {
+            dragging = true
+            // if (!freeDrawing) {
+            //   return
+            // }
+            initialPos = { ...e.pointer }
+
+            //if (options.drawRect) {
+            rect = new fabric.Rect({
+              left: initialPos.x,
+              top: initialPos.y,
+              width: 0.01,
+              height: 0.01,
+              ...options.rectProps,
+            })
+            canvas.add(rect)
+
+            canvas.renderAll()
+            //}
+          })
+
+          canvas.on("mouse:move", function (e) {
+            if (!dragging /*|| !freeDrawing*/) {
+              return
+            }
+
+            update(e.pointer)
+            //requestAnimationFrame(() => update(e.pointer))
+          })
+
+          canvas.on("mouse:up", function (o) {
+            dragging = false
+            // if (!freeDrawing) {
+            //   return
+            // }
+            if (
+              //options.drawRect &&
+              rect &&
+              (rect.width === 0 || rect.height === 0)
+            ) {
+              canvas.remove(rect)
+            }
+            if (/*!options.drawRect ||*/ !rect) {
+              rect = new fabric.Rect({
+                ...bounds,
+                left: bounds.x,
+                top: bounds.y,
+                ...options.rectProps,
+              })
+              canvas.add(rect)
+              rect.dirty = true
+              canvas.renderAll() //canvas.requestRenderAllBound() //!!!!!!!
+            }
+            rect.setCoords() // important!
+            //options.onlyOne && uninstall()
+          })
+          break
       }
+
+      // if (editMode !== EditMode.LineDrawing) {
+      //   canvas.isDrawingMode = false
+      // } else {
+      //   canvas.isDrawingMode = true
+      // }
     }
 
     //===================================================

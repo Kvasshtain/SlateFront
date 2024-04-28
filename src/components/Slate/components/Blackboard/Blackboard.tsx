@@ -18,6 +18,15 @@ const Blackboard: React.FC = () => {
 
   const firstRender = useRef(true)
 
+  const toolPanelStyle: React.CSSProperties = {
+    //transfer to css
+    position: "absolute",
+    zIndex: "1000",
+
+    left: 0,
+    top: 0,
+  }
+
   const fontProperty: IFontProperties = {
     // перенеси в state приложения и сделай настраиваемым и изменяемым
     fontSize: 16 + "px",
@@ -68,11 +77,18 @@ const Blackboard: React.FC = () => {
     dispatch(setEditMode(EditMode.None))
   }
 
+  const addRectButtonClickHandler = () => {
+    dispatch(setEditMode(EditMode.Rectangle))
+  }
+
   return (
     <React.Fragment>
-      <button onClick={addTextButtonClickHandler}>Add text mode</button>
-      <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
-      <button onClick={resetEditModeButton}> Reset edit mode</button>
+      <div style={toolPanelStyle}>
+        <button onClick={resetEditModeButton}> Reset edit mode</button>
+        <button onClick={addTextButtonClickHandler}>Add text mode</button>
+        <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
+        <button onClick={addRectButtonClickHandler}>Add rectangle</button>
+      </div>
       {state.canvasClickCoordinates && state.editMode === EditMode.Text && (
         <TextInput
           textX={state.canvasClickCoordinates.x}
