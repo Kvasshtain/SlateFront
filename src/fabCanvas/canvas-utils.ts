@@ -2,6 +2,7 @@ import type { MiddlewareAPI, UnknownAction } from "@reduxjs/toolkit"
 import { Middleware } from "@reduxjs/toolkit"
 import type { FabObjectWithId } from "../components/Slate/types"
 import type { Dispatch } from "react"
+import { fabric } from "fabric"
 
 function uuidv4(): string {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c: string) =>
@@ -34,4 +35,21 @@ function removeCanvasMouseEvents(canvas: fabric.Canvas) {
   canvas.off("mouse:move")
 }
 
-export { uuidv4, ucFirst, findById, removeCanvasMouseEvents }
+function getPointCoordinatesInViewport(
+  point: fabric.Point,
+  canvas: fabric.Canvas,
+): fabric.Point {
+  if (!canvas.viewportTransform) return point
+  const invertViewPortTransform = fabric.util.invertTransform(
+    canvas.viewportTransform,
+  )
+  return fabric.util.transformPoint(point, invertViewPortTransform)
+}
+
+export {
+  uuidv4,
+  ucFirst,
+  findById,
+  removeCanvasMouseEvents,
+  getPointCoordinatesInViewport,
+}

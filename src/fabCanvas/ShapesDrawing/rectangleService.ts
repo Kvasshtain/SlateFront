@@ -1,30 +1,35 @@
 import { fabric } from "fabric"
 import type { IBounds, ICanvasState, IPosition } from "../types"
-import { removeCanvasMouseEvents } from "../canvas-utils"
+import {
+  getPointCoordinatesInViewport,
+  removeCanvasMouseEvents,
+} from "../canvas-utils"
 
 function updateRect(
   canvas: fabric.Canvas,
   pointer: fabric.Point | undefined,
   rect: fabric.Rect,
-  initialPos: IPosition,
+  initialPos: fabric.Point,
   bounds: IBounds,
 ) {
   if (!initialPos.x) return
   if (!initialPos.y) return
   if (!pointer) return
 
-  if (initialPos.x > pointer.x) {
-    bounds.x = Math.max(0, pointer.x)
+  let transformedPointer = getPointCoordinatesInViewport(pointer, canvas)
+
+  if (initialPos.x > transformedPointer.x) {
+    bounds.x = transformedPointer.x
     bounds.width = initialPos.x - bounds.x
   } else {
     bounds.x = initialPos.x
-    bounds.width = pointer.x - initialPos.x
+    bounds.width = transformedPointer.x - initialPos.x
   }
-  if (initialPos.y > pointer.y) {
-    bounds.y = Math.max(0, pointer.y)
+  if (initialPos.y > transformedPointer.y) {
+    bounds.y = transformedPointer.y
     bounds.height = initialPos.y - bounds.y
   } else {
-    bounds.height = pointer.y - initialPos.y
+    bounds.height = transformedPointer.y - initialPos.y
     bounds.y = initialPos.y
   }
 
@@ -45,11 +50,7 @@ function turnOnRectDrawingMode(
   let rect: fabric.Rect
   let dragging: boolean
 
-  let initialPos: {
-    x?: number | undefined
-    y?: number | undefined
-    type?: string | undefined
-  }
+  let initialPos: fabric.Point
 
   let bounds: {
     x: number
@@ -76,13 +77,19 @@ function turnOnRectDrawingMode(
   canvas.selection = false
 
   canvas.on("mouse:down", function (e) {
+    if (!e.pointer) return
+
     dragging = true
     canvasState.isSendingBlocked = true
 
     // if (!freeDrawing) {
     //   return
     // }
-    initialPos = { ...e.pointer }
+
+    initialPos = getPointCoordinatesInViewport(e.pointer, canvas)
+
+    //initialPos.x = e.pointer.x
+    //initialPos.y = e.pointer.y
 
     //if (options.drawRect) {
     rect = new fabric.Rect({
