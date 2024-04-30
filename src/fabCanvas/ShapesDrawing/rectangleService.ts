@@ -1,8 +1,8 @@
 import { fabric } from "fabric"
-import type { IBounds, ICanvasState, IPosition } from "../types"
+import type { IBounds, ICanvasState /*, IPosition*/ } from "../types"
 import {
   getPointCoordinatesInViewport,
-  removeCanvasMouseEvents,
+  //removeCanvasMouseEvents,
 } from "../canvas-utils"
 
 function updateRect(
@@ -76,7 +76,7 @@ function turnOnRectDrawingMode(
 
   canvas.selection = false
 
-  canvas.on("mouse:down", function (e) {
+  canvas.on("mouse:down", function (e: fabric.IEvent<MouseEvent>) {
     if (!e.pointer) return
 
     dragging = true
@@ -150,8 +150,8 @@ function turnOnRectDrawingMode(
   })
 }
 
-function turnOfRectDrawingMode(canvas: fabric.Canvas) {
-  removeCanvasMouseEvents(canvas)
-}
+// function turnOfRectDrawingMode(canvas: fabric.Canvas) {
+//   removeCanvasMouseEvents(canvas)
+// }
 
-export { turnOnRectDrawingMode, turnOfRectDrawingMode }
+export { turnOnRectDrawingMode /*, turnOfRectDrawingMode*/ }

@@ -2,7 +2,7 @@ import type { Middleware } from "redux"
 import {
   addObjectOnCanvas,
   sendCanvasObject,
-  addTextOnCanvas,
+  addTextOnCanvas as addTextOnCanvasAct,
   setMainCanvas,
   setCanvasClickCoordinates,
   moveObjectOnCanvas,
@@ -30,6 +30,10 @@ import type {
 import { EditMode } from "../components/Slate/store/types"
 import { turnOnRectDrawingMode } from "./ShapesDrawing/rectangleService"
 import type { ICanvasState } from "./types"
+import {
+  addTextOnCanvas,
+  turnOnTextEditMode,
+} from "./TextEditing/textEditService"
 
 let canvasState: ICanvasState = { isSendingBlocked: false }
 
@@ -147,85 +151,11 @@ const fabCanvasMiddleware = (): Middleware => {
         canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
         opt.e.preventDefault()
         opt.e.stopPropagation()
-
-        // if (zoom < 400 / 1000) {
-        //   vpt[4] = 200 - (1000 * zoom) / 2
-        //   vpt[5] = 200 - (1000 * zoom) / 2
-        // } else {
-        //   if (vpt[4] >= 0) {
-        //     vpt[4] = 0
-        //   } else if (vpt[4] < canvas.getWidth() - 1000 * zoom) {
-        //     vpt[4] = canvas.getWidth() - 1000 * zoom
-        //   }
-        //   if (vpt[5] >= 0) {
-        //     vpt[5] = 0
-        //   } else if (vpt[5] < canvas.getHeight() - 1000 * zoom) {
-        //     vpt[5] = canvas.getHeight() - 1000 * zoom
-        //   }
-        // }
       })
     }
 
-    if (addTextOnCanvas.match(action)) {
-      const boardText = action.payload
-      const state = store.getState()
-
-      if (!boardText) {
-        next(action)
-        return
-      }
-
-      const text = boardText.text
-
-      if (!text) {
-        next(action)
-        return
-      }
-
-      const coordinates = boardText.coordinates
-
-      if (!coordinates) {
-        next(action)
-        return
-      }
-
-      const style = boardText.style
-
-      if (!style) {
-        next(action)
-        return
-      }
-
-      const canvas: fabric.Canvas = state.playground.mainCanvas
-
-      if (!canvas) {
-        next(action)
-        return
-      }
-
-      var fabText = new fabric.Text(text, {
-        left: coordinates.x,
-        top: coordinates.y,
-        fill: style.color,
-        fontSize: parseInt(style.fontSize),
-        fontWeight: style.fontWeight,
-        shadow: style.shadow,
-        fontStyle: style.fontStyle as
-          | ""
-          | "normal"
-          | "italic"
-          | "oblique"
-          | undefined,
-        fontFamily: style.fontFamily,
-        stroke: style.stroke,
-        strokeWidth: +style.strokeWidth,
-        textAlign: style.textAlign,
-        lineHeight: +style.lineHeight,
-        textBackgroundColor: style.textBackgroundColor,
-      })
-
-      canvas.add(fabText)
-      canvas.renderAll()
+    if (addTextOnCanvasAct.match(action)) {
+      addTextOnCanvas(store.getState().playground?.mainCanvas, action.payload)
     }
 
     if (makeFromDocumentBodyDropImageZone.match(action)) {
@@ -340,14 +270,8 @@ const fabCanvasMiddleware = (): Middleware => {
           canvas.isDrawingMode = true
           break
         case EditMode.Text:
-          canvas.on("mouse:down", (options: fabric.IEvent<MouseEvent>) => {
-            if (!options.e) return
-
-            const evt = options.e
-
-            store.dispatch(
-              setCanvasClickCoordinates({ x: evt.pageX, y: evt.pageY }),
-            )
+          turnOnTextEditMode(canvas, (x, y) => {
+            store.dispatch(setCanvasClickCoordinates({ x: x, y: y }))
           })
           break
         case EditMode.Rectangle:
