@@ -26,7 +26,7 @@ function addTextOnCanvas(canvas: fabric.Canvas, boardText: any) {
 
   if (!coordinates) return
 
-  let textPosition = getPointCoordinatesInViewport(
+  const textPosition = getPointCoordinatesInViewport(
     new fabric.Point(coordinates.x, coordinates.y),
     canvas,
   )
