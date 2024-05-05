@@ -1,43 +1,38 @@
 import type { Middleware } from "redux"
 import {
-  addObjectOnCanvas,
+  addObjectOnCanvas as addObjectOnCanvasAct,
   sendCanvasObject,
   addTextOnCanvas as addTextOnCanvasAct,
   setMainCanvas,
   setCanvasClickCoordinates,
-  moveObjectOnCanvas,
-  scaleObjectOnCanvas,
-  rotateObjectOnCanvas,
+  moveObjectOnCanvas as moveObjectOnCanvasAct,
+  scaleObjectOnCanvas as scaleObjectOnCanvasAct,
+  rotateObjectOnCanvas as rotateObjectOnCanvasAct,
   sendCanvasObjectModification,
   addPictureOnCanvas as addPictureOnCanvasAct,
   makeFromDocumentBodyDropImageZone as makeFromDocumentBodyDropImageZoneAct,
   setEditMode,
 } from "../components/Slate/store/slices"
-import { fabric } from "fabric"
-import {
-  findById,
-  removeCanvasMouseEvents,
-  ucFirst,
-  uuidv4,
-} from "./canvas-utils"
-import type { FabObjectWithId } from "../components/Slate/types"
-import type {
-  IMovementData,
-  IObjectModificationData,
-  IRotationData,
-  IScaleData,
-} from "../components/Slate/store/types"
+import type { fabric } from "fabric"
+import { removeCanvasMouseEvents } from "./canvas-utils"
+
 import { EditMode } from "../components/Slate/store/types"
-import { turnOnRectDrawingMode } from "./ShapesDrawing/rectangleService"
+import { turnOnRectDrawingMode } from "./shapesDrawing/rectangleService"
 import type { ICanvasState } from "./types"
 import {
   addTextOnCanvas,
   turnOnTextEditMode,
-} from "./TextEditing/textEditService"
+} from "./textEditing/textEditService"
+import { makeFromDocumentBodyDropImageZone } from "./dragAndDrop/dragAndDropService"
+import { initCanvasZooming } from "./zoom/zoomService"
 import {
-  addPictureOnCanvas,
-  makeFromDocumentBodyDropImageZone,
-} from "./DragAndDrop/dragAndDropService"
+  addObjectOnCanvas,
+  initCanvasManipulation,
+  moveObjectOnCanvas,
+  rotateObjectOnCanvas,
+  scaleObjectOnCanvas,
+} from "./objectManipulations/objectManipulationsService"
+import { addPictureOnCanvas } from "./picture/pictureService"
 
 let canvasState: ICanvasState = { isSendingBlocked: false }
 
@@ -46,116 +41,16 @@ const fabCanvasMiddleware = (): Middleware => {
     if (setMainCanvas.match(action)) {
       const canvas: fabric.Canvas = action.payload
 
-      if (!canvas) {
-        next(action)
-        return
-      }
+      initCanvasManipulation(
+        canvas,
+        canvasState,
+        (addObjectHandler) =>
+          store.dispatch(sendCanvasObject(addObjectHandler)),
+        (objectModificationData) =>
+          store.dispatch(sendCanvasObjectModification(objectModificationData)),
+      )
 
-      canvas.on("object:added", (evt) => {
-        if (canvasState.isSendingBlocked) return
-
-        let target = evt.target as FabObjectWithId
-
-        if (target === undefined) return
-
-        if (target.id === undefined) {
-          let id = uuidv4()
-          let left = target.left
-          let top = target.top
-          let scaleX = target.scaleX
-          let scaleY = target.scaleY
-
-          let jsonData = JSON.stringify(target)
-
-          canvas.remove(target)
-
-          const blackboardObj = {
-            id: id,
-            jsonData: jsonData,
-            left: left,
-            top: top,
-            scaleX: scaleX,
-            scaleY: scaleY,
-          }
-
-          store.dispatch(sendCanvasObject(blackboardObj))
-        }
-      })
-
-      canvas.on("object:modified", (evt) => {
-        if (canvasState.isSendingBlocked) return
-
-        const action = evt.action as string
-
-        if (action === null) return
-
-        let method = ucFirst(action)
-
-        const modifiedObject = evt.target as FabObjectWithId
-
-        if (modifiedObject === undefined || modifiedObject === null) return
-
-        const id = modifiedObject.get("id")
-        const left = modifiedObject.get("left")
-        const top = modifiedObject.get("top")
-        const scaleX = modifiedObject.get("scaleX")
-        const scaleY = modifiedObject.get("scaleY")
-        const angle = modifiedObject.get("angle")
-
-        let payload
-
-        switch (method) {
-          case "Drag":
-            payload = {
-              Id: id,
-              Left: left,
-              Top: top,
-            }
-            break
-          case "Scale":
-          case "ScaleX":
-          case "ScaleY":
-            method = "Scale"
-            payload = {
-              Id: id,
-              Left: left,
-              Top: top,
-              ScaleX: scaleX,
-              ScaleY: scaleY,
-            }
-            break
-          case "Rotate":
-            payload = {
-              Id: id,
-              Angle: angle,
-            }
-            break
-          default:
-            return
-        }
-
-        const objectModificationData: IObjectModificationData = {
-          method: method,
-          payload: payload,
-        }
-
-        store.dispatch(sendCanvasObjectModification(objectModificationData))
-      })
-
-      canvas.on("mouse:wheel", (opt) => {
-        var vpt = canvas.viewportTransform
-
-        if (!vpt) return
-
-        var delta = opt.e.deltaY
-        var zoom = canvas.getZoom()
-        zoom *= 0.999 ** delta
-        if (zoom > 1) zoom = 1
-        if (zoom < 0.1) zoom = 0.1
-        canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
-        opt.e.preventDefault()
-        opt.e.stopPropagation()
-      })
+      initCanvasZooming(canvas)
     }
 
     if (addTextOnCanvasAct.match(action)) {
@@ -200,7 +95,6 @@ const fabCanvasMiddleware = (): Middleware => {
 
       switch (editMode) {
         case EditMode.None:
-          //removeCanvasMouseEvents(canvas)
           break
         case EditMode.LineDrawing:
           canvas.isDrawingMode = true
@@ -217,141 +111,26 @@ const fabCanvasMiddleware = (): Middleware => {
     }
 
     //===================================================
-    if (addObjectOnCanvas.match(action)) {
-      const currentAddedCanvasObject = action.payload
-      const state = store.getState()
-
-      if (!currentAddedCanvasObject) {
-        next(action)
-        return
-      }
-
-      const canvas: fabric.Canvas = state.playground.mainCanvas
-
-      if (!canvas) {
-        next(action)
-        return
-      }
-
-      const id = currentAddedCanvasObject.id
-      const obj = JSON.parse(currentAddedCanvasObject.data)
-      const left = currentAddedCanvasObject.left
-      const top = currentAddedCanvasObject.top
-      const scaleX = currentAddedCanvasObject.scaleX
-      const scaleY = currentAddedCanvasObject.scaleY
-      const angle = currentAddedCanvasObject.angle
-
-      const enlivenObjectsCallback = (objects: any[]) => {
-        var origRenderOnAddRemove = canvas.renderOnAddRemove
-        canvas.renderOnAddRemove = false
-
-        objects.forEach(function (o: any) {
-          o.set({
-            id: id,
-            left: left,
-            top: top,
-            scaleX: scaleX,
-            scaleY: scaleY,
-            angle: angle,
-          })
-
-          canvas.add(o)
-        })
-
-        canvas.renderOnAddRemove = origRenderOnAddRemove
-        canvas.renderAll()
-      }
-
-      fabric.util.enlivenObjects([obj], enlivenObjectsCallback, "")
-
-      canvas.renderAll()
+    if (addObjectOnCanvasAct.match(action)) {
+      addObjectOnCanvas(store.getState().playground.mainCanvas, action.payload)
     }
 
-    if (moveObjectOnCanvas.match(action)) {
-      const movementData: IMovementData = action.payload
-      const state = store.getState()
-
-      if (!movementData) {
-        next(action)
-        return
-      }
-
-      const canvas: fabric.Canvas = state.playground.mainCanvas
-
-      if (!canvas) {
-        next(action)
-        return
-      }
-
-      let obj = findById(canvas, movementData.id)
-
-      if (!obj) return
-
-      obj.set({
-        left: movementData.left,
-        top: movementData.top,
-      })
-
-      canvas.renderAll()
+    if (moveObjectOnCanvasAct.match(action)) {
+      moveObjectOnCanvas(store.getState().playground.mainCanvas, action.payload)
     }
 
-    if (scaleObjectOnCanvas.match(action)) {
-      const scaleData: IScaleData = action.payload
-
-      if (!scaleData) {
-        next(action)
-        return
-      }
-
-      const state = store.getState()
-
-      const canvas: fabric.Canvas = state.playground.mainCanvas
-
-      if (!canvas) {
-        next(action)
-        return
-      }
-
-      let obj = findById(canvas, scaleData.id)
-
-      if (!obj) return
-
-      obj.set({
-        left: scaleData.left,
-        top: scaleData.top,
-        scaleX: scaleData.scaleX,
-        scaleY: scaleData.scaleY,
-      })
-
-      canvas.renderAll()
+    if (scaleObjectOnCanvasAct.match(action)) {
+      scaleObjectOnCanvas(
+        store.getState().playground.mainCanvas,
+        action.payload,
+      )
     }
 
-    if (rotateObjectOnCanvas.match(action)) {
-      const rotationData: IRotationData = action.payload
-
-      if (!rotationData) {
-        next(action)
-        return
-      }
-
-      const state = store.getState()
-
-      const canvas: fabric.Canvas = state.playground.mainCanvas
-
-      if (!canvas) {
-        next(action)
-        return
-      }
-
-      let obj = findById(canvas, rotationData.id)
-
-      if (!obj) return
-
-      obj.set({
-        angle: rotationData.angle,
-      })
-
-      canvas.renderAll()
+    if (rotateObjectOnCanvasAct.match(action)) {
+      rotateObjectOnCanvas(
+        store.getState().playground.mainCanvas,
+        action.payload,
+      )
     }
     //===================================================
 

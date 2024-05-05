@@ -11,6 +11,7 @@ import {
   sendCanvasObjectModification,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
+import type { ICanvasObject } from "../components/Slate/store/types"
 
 const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
   return (store) => (next) => async (action) => {
@@ -49,16 +50,17 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
     }
 
     if (sendCanvasObject.match(action)) {
-      const blackboardObj = action.payload
+      const blackboardObj: ICanvasObject = action.payload
 
       hubConnection
         .invoke("AddObject", {
           Id: blackboardObj.id,
-          Data: blackboardObj.jsonData,
+          Data: blackboardObj.data,
           Left: blackboardObj.left,
           Top: blackboardObj.top,
           ScaleX: blackboardObj.scaleX,
           ScaleY: blackboardObj.scaleY,
+          Angle: blackboardObj.angle,
         })
         .catch(function (err) {
           return console.error(err.toString())
