@@ -1,9 +1,6 @@
 import { fabric } from "fabric"
-import type { IBounds, ICanvasState /*, IPosition*/ } from "../types"
-import {
-  getPointCoordinatesInViewport,
-  //removeCanvasMouseEvents,
-} from "../canvas-utils"
+import type { IBounds, ICanvasState } from "../types"
+import { getPointCoordinatesInViewport } from "../canvas-utils"
 
 function updateRect(
   canvas: fabric.Canvas,
@@ -33,14 +30,12 @@ function updateRect(
     bounds.y = initialPos.y
   }
 
-  //if (options.drawRect) {
   rect.set({ left: bounds.x })
   rect.set({ top: bounds.y })
   rect.set({ width: bounds.width })
   rect.set({ height: bounds.height })
   rect.set({ dirty: true })
-  canvas.renderAll() // canvas.requestRenderAllBound() //!!!!!!!
-  //}
+  canvas.renderAll()
 }
 
 function turnOnRectDrawingMode(
@@ -65,8 +60,6 @@ function turnOnRectDrawingMode(
   }
 
   const options = {
-    //drawRect: drawRect.checked,
-    //onlyOne: onlyOne.checked,
     rectProps: {
       stroke: "red",
       strokeWidth: 1,
@@ -82,16 +75,8 @@ function turnOnRectDrawingMode(
     dragging = true
     canvasState.isSendingBlocked = true
 
-    // if (!freeDrawing) {
-    //   return
-    // }
-
     initialPos = getPointCoordinatesInViewport(e.pointer, canvas)
 
-    //initialPos.x = e.pointer.x
-    //initialPos.y = e.pointer.y
-
-    //if (options.drawRect) {
     rect = new fabric.Rect({
       left: initialPos.x,
       top: initialPos.y,
@@ -102,33 +87,22 @@ function turnOnRectDrawingMode(
     canvas.add(rect)
 
     canvas.renderAll()
-    //}
   })
 
   canvas.on("mouse:move", function (e) {
-    if (!dragging /*|| !freeDrawing*/) {
+    if (!dragging) {
       return
     }
 
     updateRect(canvas, e.pointer, rect, initialPos, bounds)
-    // requestAnimationFrame(() =>
-    //   updateRect(canvas, e.pointer, rect, initialPos, bounds),
-    // )
   })
 
   canvas.on("mouse:up", function (o) {
     dragging = false
-    // if (!freeDrawing) {
-    //   return
-    // }
-    if (
-      //options.drawRect &&
-      rect &&
-      (rect.width === 0 || rect.height === 0)
-    ) {
+    if (rect && (rect.width === 0 || rect.height === 0)) {
       canvas.remove(rect)
     }
-    if (/*!options.drawRect ||*/ !rect) {
+    if (!rect) {
       rect = new fabric.Rect({
         ...bounds,
         left: bounds.x,
@@ -137,10 +111,9 @@ function turnOnRectDrawingMode(
       })
       canvas.add(rect)
       rect.dirty = true
-      canvas.renderAll() //canvas.requestRenderAllBound() //!!!!!!!
+      canvas.renderAll()
     }
-    rect.setCoords() // important!
-    //options.onlyOne && uninstall()
+    rect.setCoords()
 
     canvas.remove(rect)
 
@@ -150,8 +123,4 @@ function turnOnRectDrawingMode(
   })
 }
 
-// function turnOfRectDrawingMode(canvas: fabric.Canvas) {
-//   removeCanvasMouseEvents(canvas)
-// }
-
-export { turnOnRectDrawingMode /*, turnOfRectDrawingMode*/ }
+export { turnOnRectDrawingMode }

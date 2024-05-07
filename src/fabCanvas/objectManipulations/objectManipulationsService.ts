@@ -105,7 +105,7 @@ function initCanvasManipulation(
   })
 }
 
-let addObjectOnCanvas = (
+const addObjectOnCanvas = (
   canvas: fabric.Canvas,
   currentAddedCanvasObject: ICanvasObject,
 ) => {
@@ -139,7 +139,7 @@ let addObjectOnCanvas = (
   canvas.renderAll()
 }
 
-let moveObjectOnCanvas = (
+const moveObjectOnCanvas = (
   canvas: fabric.Canvas,
   movementData: IMovementData,
 ) => {
@@ -158,7 +158,7 @@ let moveObjectOnCanvas = (
   canvas.renderAll()
 }
 
-let scaleObjectOnCanvas = (canvas: fabric.Canvas, scaleData: IScaleData) => {
+const scaleObjectOnCanvas = (canvas: fabric.Canvas, scaleData: IScaleData) => {
   if (!canvas) return
   if (!scaleData) return
 
@@ -176,7 +176,7 @@ let scaleObjectOnCanvas = (canvas: fabric.Canvas, scaleData: IScaleData) => {
   canvas.renderAll()
 }
 
-let rotateObjectOnCanvas = (
+const rotateObjectOnCanvas = (
   canvas: fabric.Canvas,
   rotationData: IRotationData,
 ) => {

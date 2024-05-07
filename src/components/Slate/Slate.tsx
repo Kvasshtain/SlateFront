@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 
 import {
+  initKeyActions,
   makeFromDocumentBodyDropImageZone,
   setMainCanvas,
   startConnecting,
@@ -22,6 +23,7 @@ function Slate() {
 
     dispatch(startConnecting())
     dispatch(makeFromDocumentBodyDropImageZone())
+    dispatch(initKeyActions())
   }, [dispatch])
 
   return (

@@ -52,11 +52,13 @@ export interface ISlateState {
   editMode: EditMode
 
   currentAddedCanvasObject: ICanvasObject | null
+  currentDeletedCanvasObjectsIds: string[] | null
   currentObjectMovementData: IMovementData | null
   currentObjectScaleData: IScaleData | null
   currentObjectRotationData: IRotationData | null
 
   sentBlackboarObjId: string | null
+  deletedFromCanvasObjectsIds: string[] | null
   addedBoardText: IBoardText | null
   addedBoardPicture: IBoardPicture | null
   canvasClickCoordinates: IScreenCoordinates | null

@@ -8,11 +8,13 @@ export const initialState: ISlateState = {
   editMode: EditMode.None,
 
   currentAddedCanvasObject: null,
+  currentDeletedCanvasObjectsIds: null,
   currentObjectMovementData: null,
   currentObjectScaleData: null,
   currentObjectRotationData: null,
 
   sentBlackboarObjId: null,
+  deletedFromCanvasObjectsIds: null,
   addedBoardText: null,
   addedBoardPicture: null,
   canvasClickCoordinates: null,
@@ -32,6 +34,8 @@ export const slateSlice = createSlice({
 
     makeFromDocumentBodyDropImageZone: () => {},
 
+    initKeyActions: () => {},
+
     setConnectionState: (state, action) => {
       state.connectionState = action.payload
     },
@@ -45,6 +49,10 @@ export const slateSlice = createSlice({
     //===================================================
     addObjectOnCanvas: (state, action) => {
       state.currentAddedCanvasObject = action.payload
+    },
+
+    deleteObjectsFromCanvasByIds: (state, action) => {
+      state.currentDeletedCanvasObjectsIds = action.payload
     },
 
     moveObjectOnCanvas: (state, action) => {
@@ -66,8 +74,10 @@ export const slateSlice = createSlice({
       state.sentBlackboarObjId = blackboardObj.id
     },
 
-    sendCanvasObjectModification: (state, action) => {
-      //!!!!!
+    sendCanvasObjectModification: (state, action) => {},
+
+    sendDeletedFromCanvasObjectsIds: (state, action) => {
+      state.deletedFromCanvasObjectsIds = action.payload
     },
 
     addTextOnCanvas: (state, action) => {
@@ -89,17 +99,20 @@ export const {
   setMainCanvas,
   startConnecting,
   makeFromDocumentBodyDropImageZone,
+  initKeyActions,
   setConnectionState,
   requestAllCanvasObjects,
   setEditMode,
 
   addObjectOnCanvas,
+  deleteObjectsFromCanvasByIds,
   moveObjectOnCanvas,
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
 
   sendCanvasObject,
   sendCanvasObjectModification,
+  sendDeletedFromCanvasObjectsIds,
 
   addTextOnCanvas,
   addPictureOnCanvas,

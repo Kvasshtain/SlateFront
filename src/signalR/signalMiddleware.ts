@@ -3,12 +3,14 @@ import {
   startConnecting,
   setConnectionState,
   addObjectOnCanvas,
+  deleteObjectsFromCanvasByIds,
   requestAllCanvasObjects,
   sendCanvasObject,
   scaleObjectOnCanvas,
   moveObjectOnCanvas,
   rotateObjectOnCanvas,
   sendCanvasObjectModification,
+  sendDeletedFromCanvasObjectsIds,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
 import type { ICanvasObject } from "../components/Slate/store/types"
@@ -28,6 +30,10 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
 
       hubConnection.on("AddObjectOnCanvas", (obj) => {
         store.dispatch(addObjectOnCanvas(obj))
+      })
+
+      hubConnection.on("DeleteObjectsOnCanvas", (payload) => {
+        store.dispatch(deleteObjectsFromCanvasByIds(payload))
       })
 
       hubConnection.on("MoveObjectOnCanvas", (payload) => {
@@ -72,6 +78,16 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
 
       hubConnection
         .invoke(objectModificationData.method, objectModificationData.payload)
+        .catch(function (err) {
+          return console.error(err.toString())
+        })
+    }
+
+    if (sendDeletedFromCanvasObjectsIds.match(action)) {
+      const deletedFromCanvasObjectsIds: string[] = action.payload
+
+      hubConnection
+        .invoke("DeleteObjectsByIds", deletedFromCanvasObjectsIds)
         .catch(function (err) {
           return console.error(err.toString())
         })

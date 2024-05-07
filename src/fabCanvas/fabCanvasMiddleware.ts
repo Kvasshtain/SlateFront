@@ -12,6 +12,9 @@ import {
   addPictureOnCanvas as addPictureOnCanvasAct,
   makeFromDocumentBodyDropImageZone as makeFromDocumentBodyDropImageZoneAct,
   setEditMode,
+  initKeyActions,
+  sendDeletedFromCanvasObjectsIds,
+  deleteObjectsFromCanvasByIds as deleteObjectsFromCanvasByIdsAct,
 } from "../components/Slate/store/slices"
 import type { fabric } from "fabric"
 import { removeCanvasMouseEvents } from "./canvas-utils"
@@ -33,6 +36,11 @@ import {
   scaleObjectOnCanvas,
 } from "./objectManipulations/objectManipulationsService"
 import { addPictureOnCanvas } from "./picture/pictureService"
+import { initDelKeyAction } from "./keyActions/keyActionsService"
+import {
+  deletSelectedActions,
+  deleteObjectsFromCanvasByIds,
+} from "./canvasObjectDeletion/selectedObjectsDeletService"
 
 let canvasState: ICanvasState = { isSendingBlocked: false }
 
@@ -67,6 +75,18 @@ const fabCanvasMiddleware = (): Middleware => {
               y: y,
             },
           }),
+        )
+      })
+    }
+
+    if (initKeyActions.match(action)) {
+      initDelKeyAction(() => {
+        deletSelectedActions(
+          store.getState().playground?.mainCanvas,
+          (deletedFromCanvasObjectsIds) =>
+            store.dispatch(
+              sendDeletedFromCanvasObjectsIds(deletedFromCanvasObjectsIds),
+            ),
         )
       })
     }
@@ -113,6 +133,13 @@ const fabCanvasMiddleware = (): Middleware => {
     //===================================================
     if (addObjectOnCanvasAct.match(action)) {
       addObjectOnCanvas(store.getState().playground.mainCanvas, action.payload)
+    }
+
+    if (deleteObjectsFromCanvasByIdsAct.match(action)) {
+      deleteObjectsFromCanvasByIds(
+        store.getState().playground.mainCanvas,
+        action.payload,
+      )
     }
 
     if (moveObjectOnCanvasAct.match(action)) {
