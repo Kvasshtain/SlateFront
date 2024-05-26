@@ -42,6 +42,7 @@ import {
   deletSelectedActions,
   deleteObjectsFromCanvasByIds,
 } from "./canvasObjectDeletion/selectedObjectsDeletService"
+import { initCanvasResizing } from "./canvasResizing/canvasResizingService"
 
 let canvasState: ICanvasState = { isSendingBlocked: false }
 
@@ -49,6 +50,8 @@ const fabCanvasMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
     if (setMainCanvas.match(action)) {
       const canvas: fabric.Canvas = action.payload
+
+      initCanvasResizing(canvas)
 
       initCanvasManipulation(
         canvas,

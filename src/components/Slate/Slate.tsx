@@ -19,6 +19,7 @@ function Slate() {
 
   useEffect(() => {
     if (!firstRender.current) return
+
     firstRender.current = false
 
     dispatch(startConnecting())
