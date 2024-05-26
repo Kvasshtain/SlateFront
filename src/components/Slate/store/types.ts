@@ -50,6 +50,7 @@ export interface ISlateState {
   connectionState: string
   mainCanvas: fabric.Canvas | null
   editMode: EditMode
+  drawingShapeKind: DrawingShapeKind
 
   currentAddedCanvasObject: ICanvasObject | null
   currentDeletedCanvasObjectsIds: string[] | null
@@ -66,9 +67,16 @@ export interface ISlateState {
 
 export enum EditMode {
   None,
-  Rectangle,
+  Shape,
   Text,
   LineDrawing,
+}
+
+export enum DrawingShapeKind {
+  None,
+  Rect,
+  Ellipse,
+  Triangle,
 }
 
 export interface IScreenCoordinates {

@@ -3,10 +3,15 @@ import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import {
   addTextOnCanvas,
   requestAllCanvasObjects,
+  setDrawingShapeKind,
   setEditMode,
 } from "../../store/slices"
 import type { IScreenCoordinates } from "../../store/types"
-import { EditMode, type IFontProperties } from "../../store/types"
+import {
+  DrawingShapeKind,
+  EditMode,
+  type IFontProperties,
+} from "../../store/types"
 import TextInput from "../TextInput"
 
 import React from "react"
@@ -78,7 +83,18 @@ const Blackboard: React.FC = () => {
   }
 
   const addRectButtonClickHandler = () => {
-    dispatch(setEditMode(EditMode.Rectangle))
+    dispatch(setDrawingShapeKind(DrawingShapeKind.Rect))
+    dispatch(setEditMode(EditMode.Shape))
+  }
+
+  const addCircleButtonClickHandler = () => {
+    dispatch(setDrawingShapeKind(DrawingShapeKind.Ellipse))
+    dispatch(setEditMode(EditMode.Shape))
+  }
+
+  const addTriangleButtonClickHandler = () => {
+    dispatch(setDrawingShapeKind(DrawingShapeKind.Triangle))
+    dispatch(setEditMode(EditMode.Shape))
   }
 
   return (
@@ -88,6 +104,8 @@ const Blackboard: React.FC = () => {
         <button onClick={addTextButtonClickHandler}>Add text mode</button>
         <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
         <button onClick={addRectButtonClickHandler}>Add rectangle</button>
+        <button onClick={addCircleButtonClickHandler}>Add ellipse</button>
+        <button onClick={addTriangleButtonClickHandler}>Add triangle</button>
       </div>
       {state.canvasClickCoordinates && state.editMode === EditMode.Text && (
         <TextInput

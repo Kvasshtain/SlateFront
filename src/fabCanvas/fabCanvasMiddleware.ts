@@ -19,8 +19,9 @@ import {
 import type { fabric } from "fabric"
 import { removeCanvasMouseEvents } from "./canvas-utils"
 
+import type { DrawingShapeKind } from "../components/Slate/store/types"
 import { EditMode } from "../components/Slate/store/types"
-import { turnOnRectDrawingMode } from "./shapesDrawing/rectangleService"
+import { turnOnShapeDrawingMode } from "./shapesDrawing/shapeService"
 import type { ICanvasState } from "./types"
 import {
   addTextOnCanvas,
@@ -100,7 +101,10 @@ const fabCanvasMiddleware = (): Middleware => {
 
       const editMode: EditMode = action.payload
 
-      const canvas: fabric.Canvas = store.getState().playground.mainCanvas
+      const state = store.getState().playground
+
+      const canvas: fabric.Canvas = state.mainCanvas
+      const drawingShapeKind: DrawingShapeKind = state.drawingShapeKind
 
       if (!canvas) {
         next(action)
@@ -124,8 +128,8 @@ const fabCanvasMiddleware = (): Middleware => {
             store.dispatch(setCanvasClickCoordinates({ x: x, y: y }))
           })
           break
-        case EditMode.Rectangle:
-          turnOnRectDrawingMode(canvas, canvasState)
+        case EditMode.Shape:
+          turnOnShapeDrawingMode(canvas, drawingShapeKind, canvasState)
           break
       }
     }

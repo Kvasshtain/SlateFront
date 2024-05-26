@@ -1,11 +1,12 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 
-import { EditMode, type ISlateState } from "./types"
+import { DrawingShapeKind, EditMode, type ISlateState } from "./types"
 
 export const initialState: ISlateState = {
   connectionState: "Disconnected",
   mainCanvas: null,
   editMode: EditMode.None,
+  drawingShapeKind: DrawingShapeKind.None,
 
   currentAddedCanvasObject: null,
   currentDeletedCanvasObjectsIds: null,
@@ -44,6 +45,10 @@ export const slateSlice = createSlice({
 
     setEditMode: (state, action) => {
       state.editMode = action.payload
+    },
+
+    setDrawingShapeKind: (state, action) => {
+      state.drawingShapeKind = action.payload
     },
 
     //===================================================
@@ -103,6 +108,7 @@ export const {
   setConnectionState,
   requestAllCanvasObjects,
   setEditMode,
+  setDrawingShapeKind,
 
   addObjectOnCanvas,
   deleteObjectsFromCanvasByIds,

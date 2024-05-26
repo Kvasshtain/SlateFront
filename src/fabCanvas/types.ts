@@ -14,3 +14,13 @@ export interface IBounds {
   width: number
   height: number
 }
+
+export interface IShapeProps {
+  left: number
+  top: number
+  width: number
+  height: number
+  stroke: string
+  strokeWidth: number
+  fill: string
+}
