@@ -17,7 +17,7 @@ import {
   deleteObjectsFromCanvasByIds as deleteObjectsFromCanvasByIdsAct,
 } from "../components/Slate/store/slices"
 import type { fabric } from "fabric"
-import { removeCanvasMouseEvents } from "./canvas-utils"
+import { removeCanvasMouseEvents, setAllObjectsSelection } from "./canvas-utils"
 
 import type { DrawingShapeKind } from "../components/Slate/store/types"
 import { EditMode } from "../components/Slate/store/types"
@@ -107,6 +107,7 @@ const fabCanvasMiddleware = (): Middleware => {
       const state = store.getState().playground
 
       const canvas: fabric.Canvas = state.mainCanvas
+      setAllObjectsSelection(canvas, true)
       const drawingShapeKind: DrawingShapeKind = state.drawingShapeKind
 
       if (!canvas) {
@@ -115,7 +116,6 @@ const fabCanvasMiddleware = (): Middleware => {
       }
 
       canvas.isDrawingMode = false
-      canvas.selection = true
 
       removeCanvasMouseEvents(canvas)
       store.dispatch(setCanvasClickCoordinates(null))
@@ -132,6 +132,7 @@ const fabCanvasMiddleware = (): Middleware => {
           })
           break
         case EditMode.Shape:
+          setAllObjectsSelection(canvas, false)
           turnOnShapeDrawingMode(canvas, drawingShapeKind, canvasState)
           break
       }

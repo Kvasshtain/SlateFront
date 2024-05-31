@@ -1,6 +1,9 @@
 import { fabric } from "fabric"
 import type { IBounds, ICanvasState, IShapeProps } from "../types"
-import { getPointCoordinatesInViewport } from "../canvas-utils"
+import {
+  getPointCoordinatesInViewport,
+  setAllObjectsSelection,
+} from "../canvas-utils"
 import { DrawingShapeKind } from "../../components/Slate/store/types"
 
 function updateShape(
@@ -81,8 +84,6 @@ function turnOnShapeDrawingMode(
   drawingShapeKind: DrawingShapeKind,
   canvasState: ICanvasState,
 ) {
-  canvas.selection = false
-
   let shape: fabric.Object
   let dragging: boolean
 
@@ -110,6 +111,8 @@ function turnOnShapeDrawingMode(
 
   canvas.on("mouse:down", function (e: fabric.IEvent<MouseEvent>) {
     if (!e.pointer) return
+
+    setAllObjectsSelection(canvas, false)
 
     dragging = true
     canvasState.isSendingBlocked = true
@@ -164,7 +167,7 @@ function turnOnShapeDrawingMode(
 
     canvas.add(shape)
 
-    shape.selectable = true
+    //shape.selectable = true
   })
 }
 

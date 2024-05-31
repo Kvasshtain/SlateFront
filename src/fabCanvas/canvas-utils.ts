@@ -46,10 +46,19 @@ function getPointCoordinatesInViewport(
   return fabric.util.transformPoint(point, invertViewPortTransform)
 }
 
+const setAllObjectsSelection = (canvas: fabric.Canvas, selectable: boolean) => {
+  const allObjects = canvas.getObjects()
+
+  allObjects.map((o) => {
+    return (o.selectable = selectable)
+  })
+}
+
 export {
   uuidv4,
   ucFirst,
   findById,
   removeCanvasMouseEvents,
   getPointCoordinatesInViewport,
+  setAllObjectsSelection,
 }
