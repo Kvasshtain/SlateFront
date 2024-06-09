@@ -15,6 +15,9 @@ import {
 import TextInput from "../TextInput"
 
 import React from "react"
+import Dropdown from "../Dropdown"
+import MenuItem from "../Dropdown/components/MenuItem"
+import { Behaviour, type IDropdownProps } from "../Dropdown/types"
 
 const Blackboard: React.FC = () => {
   const state = useAppSelector((state) => state.playground)
@@ -97,9 +100,37 @@ const Blackboard: React.FC = () => {
     dispatch(setEditMode(EditMode.Shape))
   }
 
+  //Вынеси в отдельный файл
+  type Item = {
+    label: string
+    value: number
+    disabled?: boolean
+  }
+
+  const items: Item[] = [
+    { label: "Red", value: 1 },
+    { label: "Green", value: 2 },
+    { label: "Blue", value: 3 },
+    { label: "Yellow", value: 4 },
+    { label: "Black", value: 5 },
+  ]
+  //Вынеси в отдельный файл
+
   return (
     <React.Fragment>
       <div style={toolPanelStyle}>
+        <Dropdown<Item>
+          label="Choose color"
+          behaviour={Behaviour.SINGLE}
+          value={items[0]}
+          onChange={(item) => console.log(item)}
+        >
+          {items.map((item) => (
+            <MenuItem key={item.value} value={item}>
+              {item.label}
+            </MenuItem>
+          ))}
+        </Dropdown>
         <button onClick={resetEditModeButton}> Reset edit mode</button>
         <button onClick={addTextButtonClickHandler}>Add text mode</button>
         <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
