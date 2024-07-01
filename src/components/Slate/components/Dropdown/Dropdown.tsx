@@ -26,6 +26,7 @@ const Dropdown = <T extends unknown>(
   const { label, children, onChange } = props
 
   const [isOpen, setOpen] = useState(false)
+  const highlightedIndexRef = useRef(-1)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const elements = useRef<Record<number, HTMLDivElement>>({})
   const items = useMemo(() => Children.toArray(children), [children])
@@ -67,45 +68,49 @@ const Dropdown = <T extends unknown>(
 
   const length = Children.count(children)
 
+  let index
+
   const handleKeyDown = (ev: KeyboardEvent) => {
     switch (ev.code) {
       case "ArrowDown":
         ev.preventDefault()
         ev.stopPropagation()
-        setHighlightedIndex((highlightedIndex) => {
-          const index =
-            highlightedIndex === indexes.length - 1 ? 0 : highlightedIndex + 1
+        index =
+          highlightedIndexRef.current === indexes.length - 1
+            ? 0
+            : highlightedIndexRef.current + 1
 
-          //!!!!! Вынеси в отдельную функцию
-          elements.current[indexes[index]]?.scrollIntoView({
-            block: "nearest",
-          })
-
-          return index
+        //!!!!! Вынеси в отдельную функцию
+        elements.current[indexes[index]]?.scrollIntoView({
+          block: "nearest",
         })
+
+        highlightedIndexRef.current = index
+        setHighlightedIndex(index)
         break
       case "ArrowUp": {
         ev.preventDefault()
         ev.stopPropagation()
-        setHighlightedIndex((highlightedIndex) => {
-          const index =
-            highlightedIndex === 0 ? indexes.length - 1 : highlightedIndex - 1
+        index =
+          highlightedIndexRef.current === 0
+            ? indexes.length - 1
+            : highlightedIndexRef.current - 1
 
-          //!!!!! Вынеси в отдельную функцию
-          elements.current[indexes[index]]?.scrollIntoView({
-            block: "nearest",
-          })
-
-          return index
+        //!!!!! Вынеси в отдельную функцию
+        elements.current[indexes[index]]?.scrollIntoView({
+          block: "nearest",
         })
+
+        highlightedIndexRef.current = index
+        setHighlightedIndex(index)
         break
       }
       case "Enter": {
-        //работает неправильно, берет item от предыдущего выбора
         ev.preventDefault()
         ev.stopPropagation()
-        const item = items[indexes[highlightedIndex]]
-        if (highlightedIndex !== -1 && isValidElement(item)) {
+        const item = items[indexes[highlightedIndexRef.current]]
+
+        if (highlightedIndexRef.current !== -1 && isValidElement(item)) {
           handleChange(item.props.value)
         }
         break

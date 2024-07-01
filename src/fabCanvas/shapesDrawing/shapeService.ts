@@ -83,6 +83,7 @@ function turnOnShapeDrawingMode(
   canvas: fabric.Canvas,
   drawingShapeKind: DrawingShapeKind,
   canvasState: ICanvasState,
+  color: string,
 ) {
   let shape: fabric.Object
   let dragging: boolean
@@ -103,7 +104,7 @@ function turnOnShapeDrawingMode(
 
   const options = {
     shapeProps: {
-      stroke: "red",
+      stroke: color,
       strokeWidth: 1,
       fill: "",
     },

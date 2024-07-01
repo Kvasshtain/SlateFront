@@ -7,6 +7,7 @@ export const initialState: ISlateState = {
   mainCanvas: null,
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
+  currentDrawingColor: "Black",
 
   currentAddedCanvasObject: null,
   currentDeletedCanvasObjectsIds: null,
@@ -49,6 +50,10 @@ export const slateSlice = createSlice({
 
     setDrawingShapeKind: (state, action) => {
       state.drawingShapeKind = action.payload
+    },
+
+    setDrawingColor: (state, action) => {
+      state.currentDrawingColor = action.payload
     },
 
     //===================================================
@@ -109,6 +114,7 @@ export const {
   requestAllCanvasObjects,
   setEditMode,
   setDrawingShapeKind,
+  setDrawingColor,
 
   addObjectOnCanvas,
   deleteObjectsFromCanvasByIds,

@@ -109,6 +109,7 @@ const fabCanvasMiddleware = (): Middleware => {
       const canvas: fabric.Canvas = state.mainCanvas
       setAllObjectsSelection(canvas, true)
       const drawingShapeKind: DrawingShapeKind = state.drawingShapeKind
+      const color: string = state.currentDrawingColor
 
       if (!canvas) {
         next(action)
@@ -125,6 +126,7 @@ const fabCanvasMiddleware = (): Middleware => {
           break
         case EditMode.LineDrawing:
           canvas.isDrawingMode = true
+          canvas.freeDrawingBrush.color = color
           break
         case EditMode.Text:
           turnOnTextEditMode(canvas, (x, y) => {
@@ -133,7 +135,7 @@ const fabCanvasMiddleware = (): Middleware => {
           break
         case EditMode.Shape:
           setAllObjectsSelection(canvas, false)
-          turnOnShapeDrawingMode(canvas, drawingShapeKind, canvasState)
+          turnOnShapeDrawingMode(canvas, drawingShapeKind, canvasState, color)
           break
       }
     }

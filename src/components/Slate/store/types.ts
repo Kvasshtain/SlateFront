@@ -51,6 +51,7 @@ export interface ISlateState {
   mainCanvas: fabric.Canvas | null
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
+  currentDrawingColor: string
 
   currentAddedCanvasObject: ICanvasObject | null
   currentDeletedCanvasObjectsIds: string[] | null

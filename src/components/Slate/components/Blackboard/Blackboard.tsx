@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import {
   addTextOnCanvas,
   requestAllCanvasObjects,
+  setDrawingColor,
   setDrawingShapeKind,
   setEditMode,
 } from "../../store/slices"
@@ -39,7 +40,7 @@ const Blackboard: React.FC = () => {
     // перенеси в state приложения и сделай настраиваемым и изменяемым
     fontSize: 16 + "px",
     fontWeight: "normal",
-    color: "red",
+    color: state.currentDrawingColor,
     textDecoration: "rgba(0,0,0,0) 0 0 0px",
     shadow: "rgba(0,0,0,0) 0px 0px 0px",
     fontStyle: "normal",
@@ -73,6 +74,10 @@ const Blackboard: React.FC = () => {
     )
   }
 
+  const changeColorHandler = (item: Item) => {
+    dispatch(setDrawingColor(item.label))
+  }
+
   const addTextButtonClickHandler = () => {
     dispatch(setEditMode(EditMode.Text))
   }
@@ -81,7 +86,7 @@ const Blackboard: React.FC = () => {
     dispatch(setEditMode(EditMode.LineDrawing))
   }
 
-  const resetEditModeButton = () => {
+  const resetEditModeButtonHandler = () => {
     dispatch(setEditMode(EditMode.None))
   }
 
@@ -123,7 +128,7 @@ const Blackboard: React.FC = () => {
           label="Choose color"
           behaviour={Behaviour.SINGLE}
           value={items[0]}
-          onChange={(item) => console.log(item)}
+          onChange={changeColorHandler}
         >
           {items.map((item) => (
             <MenuItem key={item.value} value={item}>
@@ -131,7 +136,7 @@ const Blackboard: React.FC = () => {
             </MenuItem>
           ))}
         </Dropdown>
-        <button onClick={resetEditModeButton}> Reset edit mode</button>
+        <button onClick={resetEditModeButtonHandler}> Reset edit mode</button>
         <button onClick={addTextButtonClickHandler}>Add text mode</button>
         <button onClick={lineDrawButtonClickHandler}>Add line mode</button>
         <button onClick={addRectButtonClickHandler}>Add rectangle</button>
