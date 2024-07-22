@@ -52,6 +52,7 @@ export interface ISlateState {
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
   currentDrawingColor: string
+  currentCanvasZoom: number
 
   currentAddedCanvasObject: ICanvasObject | null
   currentDeletedCanvasObjectsIds: string[] | null
@@ -64,6 +65,7 @@ export interface ISlateState {
   addedBoardText: IBoardText | null
   addedBoardPicture: IBoardPicture | null
   canvasClickCoordinates: IScreenCoordinates | null
+  userInputFieldCoordinates: IScreenCoordinates | null
 }
 
 export enum EditMode {
@@ -81,12 +83,12 @@ export enum DrawingShapeKind {
 }
 
 export interface IScreenCoordinates {
-  x: number
-  y: number
+  x: number | undefined
+  y: number | undefined
 }
 
 export interface IFontProperties {
-  fontSize: string
+  fontSize: number
   fontWeight: string
   color: string
   textDecoration: string

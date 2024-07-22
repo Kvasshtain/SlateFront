@@ -15,6 +15,8 @@ import {
   initKeyActions,
   sendDeletedFromCanvasObjectsIds,
   deleteObjectsFromCanvasByIds as deleteObjectsFromCanvasByIdsAct,
+  setCanvasZoom,
+  setUserInputFieldCoordinates,
 } from "../components/Slate/store/slices"
 import type { fabric } from "fabric"
 import { removeCanvasMouseEvents, setAllObjectsSelection } from "./canvas-utils"
@@ -25,6 +27,7 @@ import { turnOnShapeDrawingMode } from "./shapesDrawing/shapeService"
 import type { ICanvasState } from "./types"
 import {
   addTextOnCanvas,
+  turnOffTextEditMode,
   turnOnTextEditMode,
 } from "./textEditing/textEditService"
 import { makeFromDocumentBodyDropImageZone } from "./dragAndDrop/dragAndDropService"
@@ -44,7 +47,8 @@ import {
 } from "./canvasObjectDeletion/selectedObjectsDeletService"
 import { initCanvasResizing } from "./canvasResizing/canvasResizingService"
 
-let canvasState: ICanvasState = { isSendingBlocked: false }
+const canvasState: ICanvasState = { isSendingBlocked: false }
+const zoomCallbacksList: Set<() => void> = new Set<() => void>()
 
 const fabCanvasMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
@@ -62,11 +66,22 @@ const fabCanvasMiddleware = (): Middleware => {
           store.dispatch(sendCanvasObjectModification(objectModificationData)),
       )
 
-      initCanvasZooming(canvas)
+      initCanvasZooming(
+        canvas,
+        (zoom) => store.dispatch(setCanvasZoom(zoom)),
+        zoomCallbacksList,
+      )
     }
 
     if (addTextOnCanvasAct.match(action)) {
-      addTextOnCanvas(store.getState().playground?.mainCanvas, action.payload)
+      addTextOnCanvas(
+        store.getState().playground?.mainCanvas,
+        action.payload,
+        zoomCallbacksList,
+        (x, y) => {
+          store.dispatch(setUserInputFieldCoordinates({ x: x, y: y }))
+        },
+      )
     }
 
     if (makeFromDocumentBodyDropImageZoneAct.match(action)) {
@@ -123,15 +138,24 @@ const fabCanvasMiddleware = (): Middleware => {
 
       switch (editMode) {
         case EditMode.None:
+          turnOffTextEditMode(canvas)
           break
         case EditMode.LineDrawing:
           canvas.isDrawingMode = true
           canvas.freeDrawingBrush.color = color
           break
         case EditMode.Text:
-          turnOnTextEditMode(canvas, (x, y) => {
-            store.dispatch(setCanvasClickCoordinates({ x: x, y: y }))
-          })
+          turnOnTextEditMode(
+            canvas,
+            canvasState,
+            (canvasClickPoint) => {
+              store.dispatch(setCanvasClickCoordinates(canvasClickPoint))
+            },
+            (screenClickPoint) => {
+              store.dispatch(setUserInputFieldCoordinates(screenClickPoint))
+            },
+            zoomCallbacksList,
+          )
           break
         case EditMode.Shape:
           setAllObjectsSelection(canvas, false)

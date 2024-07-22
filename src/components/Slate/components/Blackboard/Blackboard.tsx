@@ -7,7 +7,7 @@ import {
   setDrawingShapeKind,
   setEditMode,
 } from "../../store/slices"
-import type { IScreenCoordinates } from "../../store/types"
+//import type { IScreenCoordinates } from "../../store/types"
 import {
   DrawingShapeKind,
   EditMode,
@@ -38,7 +38,7 @@ const Blackboard: React.FC = () => {
 
   const fontProperty: IFontProperties = {
     // перенеси в state приложения и сделай настраиваемым и изменяемым
-    fontSize: 16 + "px",
+    fontSize: 16,
     fontWeight: "normal",
     color: state.currentDrawingColor,
     textDecoration: "rgba(0,0,0,0) 0 0 0px",
@@ -59,16 +59,13 @@ const Blackboard: React.FC = () => {
     dispatch(requestAllCanvasObjects())
   }, [dispatch])
 
-  const onEndTextEditingHandler = (
-    text: string,
-    textCoordinates: IScreenCoordinates,
-  ): void => {
+  const onEndTextEditingHandler = (text: string): void => {
     dispatch(setEditMode(EditMode.None))
 
     dispatch(
       addTextOnCanvas({
         text: text.trim(),
-        coordinates: textCoordinates,
+        coordinates: state.canvasClickCoordinates,
         style: fontProperty,
       }),
     )
@@ -143,15 +140,17 @@ const Blackboard: React.FC = () => {
         <button onClick={addCircleButtonClickHandler}>Add ellipse</button>
         <button onClick={addTriangleButtonClickHandler}>Add triangle</button>
       </div>
-      {state.canvasClickCoordinates && state.editMode === EditMode.Text && (
-        <TextInput
-          textX={state.canvasClickCoordinates.x}
-          textY={state.canvasClickCoordinates.y}
-          value={""}
-          fontProperty={fontProperty}
-          onEndTextEditing={onEndTextEditingHandler}
-        />
-      )}
+      {state.userInputFieldCoordinates?.x &&
+        state.userInputFieldCoordinates?.y &&
+        state.editMode === EditMode.Text && (
+          <TextInput
+            textX={state.userInputFieldCoordinates.x}
+            textY={state.userInputFieldCoordinates.y}
+            value={""}
+            fontProperty={fontProperty}
+            onEndTextEditing={onEndTextEditingHandler}
+          />
+        )}
     </React.Fragment>
   )
 }

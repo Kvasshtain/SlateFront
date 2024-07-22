@@ -8,6 +8,7 @@ export const initialState: ISlateState = {
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
   currentDrawingColor: "Black",
+  currentCanvasZoom: 1,
 
   currentAddedCanvasObject: null,
   currentDeletedCanvasObjectsIds: null,
@@ -20,6 +21,7 @@ export const initialState: ISlateState = {
   addedBoardText: null,
   addedBoardPicture: null,
   canvasClickCoordinates: null,
+  userInputFieldCoordinates: null,
 }
 
 export const slateSlice = createSlice({
@@ -54,6 +56,10 @@ export const slateSlice = createSlice({
 
     setDrawingColor: (state, action) => {
       state.currentDrawingColor = action.payload
+    },
+
+    setCanvasZoom: (state, action) => {
+      state.currentCanvasZoom = action.payload
     },
 
     //===================================================
@@ -101,6 +107,10 @@ export const slateSlice = createSlice({
     setCanvasClickCoordinates: (state, action) => {
       state.canvasClickCoordinates = action.payload
     },
+
+    setUserInputFieldCoordinates: (state, action) => {
+      state.userInputFieldCoordinates = action.payload
+    },
   },
 })
 
@@ -115,6 +125,7 @@ export const {
   setEditMode,
   setDrawingShapeKind,
   setDrawingColor,
+  setCanvasZoom,
 
   addObjectOnCanvas,
   deleteObjectsFromCanvasByIds,
@@ -129,5 +140,6 @@ export const {
   addTextOnCanvas,
   addPictureOnCanvas,
   setCanvasClickCoordinates,
+  setUserInputFieldCoordinates,
 } = slateSlice.actions
 export default slateSlice.reducer
