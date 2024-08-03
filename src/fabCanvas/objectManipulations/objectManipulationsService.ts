@@ -28,6 +28,7 @@ function initCanvasManipulation(
     if (target === undefined) return
 
     if (target.id) return
+    //const newId: string = target.id ? target.id : uuidv4()
 
     canvas.remove(target)
 

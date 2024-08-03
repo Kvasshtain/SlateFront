@@ -17,6 +17,8 @@ import {
   deleteObjectsFromCanvasByIds as deleteObjectsFromCanvasByIdsAct,
   setCanvasZoom,
   setUserInputFieldCoordinates,
+  setPresetText,
+  setEditedTextId,
 } from "../components/Slate/store/slices"
 import type { fabric } from "fabric"
 import { removeCanvasMouseEvents, setAllObjectsSelection } from "./canvas-utils"
@@ -27,6 +29,7 @@ import { turnOnShapeDrawingMode } from "./shapesDrawing/shapeService"
 import type { ICanvasState } from "./types"
 import {
   addTextOnCanvas,
+  initTextDblClickEditing,
   turnOffTextEditMode,
   turnOnTextEditMode,
 } from "./textEditing/textEditService"
@@ -48,7 +51,8 @@ import {
 import { initCanvasResizing } from "./canvasResizing/canvasResizingService"
 
 const canvasState: ICanvasState = { isSendingBlocked: false }
-const zoomCallbacksList: Set<() => void> = new Set<() => void>()
+
+const zoomCallbacksList = new Set<() => void>()
 
 const fabCanvasMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
@@ -60,8 +64,7 @@ const fabCanvasMiddleware = (): Middleware => {
       initCanvasManipulation(
         canvas,
         canvasState,
-        (addObjectHandler) =>
-          store.dispatch(sendCanvasObject(addObjectHandler)),
+        (canvasObject) => store.dispatch(sendCanvasObject(canvasObject)),
         (objectModificationData) =>
           store.dispatch(sendCanvasObjectModification(objectModificationData)),
       )
@@ -69,6 +72,25 @@ const fabCanvasMiddleware = (): Middleware => {
       initCanvasZooming(
         canvas,
         (zoom) => store.dispatch(setCanvasZoom(zoom)),
+        zoomCallbacksList,
+      )
+
+      initTextDblClickEditing(
+        canvas,
+        canvasState,
+        () => store.dispatch(setEditMode(EditMode.Text)),
+        (canvasClickPoint) => {
+          store.dispatch(setCanvasClickCoordinates(canvasClickPoint))
+        },
+        (screenClickPoint) => {
+          store.dispatch(setUserInputFieldCoordinates(screenClickPoint))
+        },
+        (presetText) => {
+          store.dispatch(setPresetText(presetText))
+        },
+        (textId) => {
+          store.dispatch(setEditedTextId(textId))
+        },
         zoomCallbacksList,
       )
     }
@@ -80,6 +102,12 @@ const fabCanvasMiddleware = (): Middleware => {
         zoomCallbacksList,
         (x, y) => {
           store.dispatch(setUserInputFieldCoordinates({ x: x, y: y }))
+        },
+        (editedTextId) => {
+          store.dispatch(sendDeletedFromCanvasObjectsIds([editedTextId]))
+        },
+        (canvasObject) => {
+          store.dispatch(sendCanvasObject(canvasObject))
         },
       )
     }
@@ -153,6 +181,12 @@ const fabCanvasMiddleware = (): Middleware => {
             },
             (screenClickPoint) => {
               store.dispatch(setUserInputFieldCoordinates(screenClickPoint))
+            },
+            (presetText) => {
+              store.dispatch(setPresetText(presetText))
+            },
+            (textId) => {
+              store.dispatch(setEditedTextId(textId))
             },
             zoomCallbacksList,
           )

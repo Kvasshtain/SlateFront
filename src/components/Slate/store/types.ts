@@ -66,6 +66,8 @@ export interface ISlateState {
   addedBoardPicture: IBoardPicture | null
   canvasClickCoordinates: IScreenCoordinates | null
   userInputFieldCoordinates: IScreenCoordinates | null
+  presetText: string
+  editedTextId: string | null
 }
 
 export enum EditMode {
