@@ -21,7 +21,7 @@ import MenuItem from "../Dropdown/components/MenuItem"
 import { Behaviour, type IDropdownProps } from "../Dropdown/types"
 
 const Blackboard: React.FC = () => {
-  const state = useAppSelector((state) => state.playground)
+  const state: any = useAppSelector((state) => state.playground)
 
   const dispatch = useAppDispatch()
 
@@ -67,6 +67,7 @@ const Blackboard: React.FC = () => {
         text: text.trim(),
         coordinates: state.canvasClickCoordinates,
         style: fontProperty,
+        editedTextId: state.editedTextId,
       }),
     )
   }
@@ -146,7 +147,7 @@ const Blackboard: React.FC = () => {
           <TextInput
             textX={state.userInputFieldCoordinates.x}
             textY={state.userInputFieldCoordinates.y}
-            value={""}
+            value={state.presetText}
             fontProperty={fontProperty}
             onEndTextEditing={onEndTextEditingHandler}
           />

@@ -22,6 +22,8 @@ export const initialState: ISlateState = {
   addedBoardPicture: null,
   canvasClickCoordinates: null,
   userInputFieldCoordinates: null,
+  presetText: "",
+  editedTextId: null,
 }
 
 export const slateSlice = createSlice({
@@ -111,6 +113,12 @@ export const slateSlice = createSlice({
     setUserInputFieldCoordinates: (state, action) => {
       state.userInputFieldCoordinates = action.payload
     },
+    setPresetText: (state, action) => {
+      state.presetText = action.payload
+    },
+    setEditedTextId: (state, action) => {
+      state.editedTextId = action.payload
+    },
   },
 })
 
@@ -141,5 +149,7 @@ export const {
   addPictureOnCanvas,
   setCanvasClickCoordinates,
   setUserInputFieldCoordinates,
+  setPresetText,
+  setEditedTextId,
 } = slateSlice.actions
 export default slateSlice.reducer
