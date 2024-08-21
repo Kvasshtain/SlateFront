@@ -9,6 +9,9 @@ import type {
   IScaleData,
 } from "../../components/Slate/store/types"
 import type { ICanvasState } from "../types"
+import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
+
+const addNewObjectName = "addNewObject"
 
 function initCanvasManipulation(
   canvas: fabric.Canvas,
@@ -20,15 +23,14 @@ function initCanvasManipulation(
 ) {
   if (!canvas) return
 
-  canvas.on("object:added", (evt) => {
+  const addNewObjectHandler = (e: fabric.IEvent<MouseEvent>) => {
     if (canvasState.isSendingBlocked) return
 
-    let target = evt.target as FabObjectWithId
+    let target = e.target as FabObjectWithId
 
     if (target === undefined) return
 
     if (target.id) return
-    //const newId: string = target.id ? target.id : uuidv4()
 
     canvas.remove(target)
 
@@ -43,7 +45,14 @@ function initCanvasManipulation(
     }
 
     addObjectHandler(blackboardObj)
-  })
+  }
+
+  tryAddCanvasHandler(
+    canvas,
+    "object:added",
+    addNewObjectName,
+    addNewObjectHandler,
+  )
 
   canvas.on("object:modified", (evt) => {
     if (canvasState.isSendingBlocked) return

@@ -1,6 +1,12 @@
 import type { TextAlign } from "csstype"
 import type { fabric } from "fabric"
 
+export interface ICursorData {
+  userId: string
+  left: number
+  top: number
+}
+
 export interface ICanvasObject {
   id: string
   data: string
@@ -48,12 +54,14 @@ export interface IBoardPicture {
 
 export interface ISlateState {
   connectionState: string
+  userId: string | null
   mainCanvas: fabric.Canvas | null
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
   currentDrawingColor: string
   currentCanvasZoom: number
 
+  otherUserCursorData: ICursorData | null
   currentAddedCanvasObject: ICanvasObject | null
   currentDeletedCanvasObjectsIds: string[] | null
   currentObjectMovementData: IMovementData | null

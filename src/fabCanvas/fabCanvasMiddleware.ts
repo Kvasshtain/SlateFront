@@ -19,13 +19,20 @@ import {
   setUserInputFieldCoordinates,
   setPresetText,
   setEditedTextId,
+  sendCursorTrackingData,
+  moveCursorOnCanvas,
 } from "../components/Slate/store/slices"
 import type { fabric } from "fabric"
-import { removeCanvasMouseEvents, setAllObjectsSelection } from "./canvas-utils"
+import {
+  /*removeCanvasMouseEvents,*/ setAllObjectsSelection,
+} from "./canvas-utils"
 
 import type { DrawingShapeKind } from "../components/Slate/store/types"
 import { EditMode } from "../components/Slate/store/types"
-import { turnOnShapeDrawingMode } from "./shapesDrawing/shapeService"
+import {
+  turnOffShapeDrawingMode,
+  turnOnShapeDrawingMode,
+} from "./shapesDrawing/shapeService"
 import type { ICanvasState } from "./types"
 import {
   addTextOnCanvas,
@@ -49,6 +56,10 @@ import {
   deleteObjectsFromCanvasByIds,
 } from "./canvasObjectDeletion/selectedObjectsDeletService"
 import { initCanvasResizing } from "./canvasResizing/canvasResizingService"
+import {
+  initCursorTracking,
+  moveOtherUserCursor,
+} from "./cursorTracking/cursorTrackingService"
 //import { initEventHandlers } from "./canvasEvents/canvasEventsService"
 
 const canvasState: ICanvasState = { isSendingBlocked: false }
@@ -61,7 +72,16 @@ const fabCanvasMiddleware = (): Middleware => {
       const canvas: fabric.Canvas = action.payload
 
       initCanvasResizing(canvas)
+
       //initEventHandlers(canvas)
+
+      initCursorTracking(
+        canvas,
+        store.getState().playground?.userId,
+        (cursorTrackingData) => {
+          store.dispatch(sendCursorTrackingData(cursorTrackingData))
+        },
+      )
 
       initCanvasManipulation(
         canvas,
@@ -163,7 +183,8 @@ const fabCanvasMiddleware = (): Middleware => {
 
       canvas.isDrawingMode = false
 
-      removeCanvasMouseEvents(canvas)
+      turnOffShapeDrawingMode()
+      //removeCanvasMouseEvents(canvas)
       store.dispatch(setCanvasClickCoordinates(null))
 
       switch (editMode) {
@@ -201,6 +222,13 @@ const fabCanvasMiddleware = (): Middleware => {
     }
 
     //===================================================
+    if (moveCursorOnCanvas.match(action)) {
+      moveOtherUserCursor(
+        store.getState().playground.mainCanvas,
+        action.payload,
+      )
+    }
+
     if (addObjectOnCanvasAct.match(action)) {
       addObjectOnCanvas(store.getState().playground.mainCanvas, action.payload)
     }

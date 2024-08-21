@@ -11,9 +11,14 @@ import {
   rotateObjectOnCanvas,
   sendCanvasObjectModification,
   sendDeletedFromCanvasObjectsIds,
+  sendCursorTrackingData,
+  moveCursorOnCanvas,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
-import type { ICanvasObject } from "../components/Slate/store/types"
+import type {
+  ICanvasObject,
+  ICursorData,
+} from "../components/Slate/store/types"
 
 const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
   return (store) => (next) => async (action) => {
@@ -26,6 +31,10 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
 
       hubConnection.on("AddObjectError", (img) => {
         //Add error handler!!!
+      })
+
+      hubConnection.on("MoveCursorOnCanvas", (obj) => {
+        store.dispatch(moveCursorOnCanvas(obj))
       })
 
       hubConnection.on("AddObjectOnCanvas", (obj) => {
@@ -53,6 +62,20 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
       hubConnection.invoke("GetAllBoardObjects").catch(function (err: Error) {
         return console.error(err.toString())
       })
+    }
+
+    if (sendCursorTrackingData.match(action)) {
+      const cursorData: ICursorData = action.payload
+
+      hubConnection
+        .invoke("MoveCursor", {
+          UserId: cursorData.userId,
+          Left: cursorData.left,
+          Top: cursorData.top,
+        })
+        .catch(function (err: Error) {
+          return console.error(err.toString())
+        })
     }
 
     if (sendCanvasObject.match(action)) {

@@ -1,8 +1,6 @@
-import type { MiddlewareAPI, UnknownAction } from "@reduxjs/toolkit"
-import { Middleware } from "@reduxjs/toolkit"
 import type { FabObjectWithId } from "../components/Slate/types"
-import type { Dispatch } from "react"
 import { fabric } from "fabric"
+import type { IScreenCoordinates } from "../components/Slate/store/types"
 
 function uuidv4(): string {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c: string) =>
@@ -29,12 +27,6 @@ function findById(fabCanvas: fabric.Canvas, id: string) {
   })
 }
 
-function removeCanvasMouseEvents(canvas: fabric.Canvas) {
-  canvas.off("mouse:down")
-  canvas.off("mouse:up")
-  canvas.off("mouse:move")
-}
-
 function getPointCoordinatesInViewport(
   point: fabric.Point,
   canvas: fabric.Canvas,
@@ -54,11 +46,47 @@ const setAllObjectsSelection = (canvas: fabric.Canvas, selectable: boolean) => {
   })
 }
 
+const xIndex = 4
+const yIndex = 5
+
+function ConvertPointIntoCanvasCoordinates(
+  p: IScreenCoordinates,
+  zoom: number,
+  canvas: fabric.Canvas,
+): IScreenCoordinates {
+  if (!canvas.viewportTransform) return { x: 0, y: 0 }
+  if (!p.x || !p.y) return { x: 0, y: 0 }
+
+  return {
+    x:
+      p.x / zoom +
+      fabric.util.invertTransform(canvas.viewportTransform)[xIndex],
+    y:
+      p.y / zoom +
+      fabric.util.invertTransform(canvas.viewportTransform)[yIndex],
+  }
+}
+
+function ConvertPointIntoScreenCoordinates(
+  p: IScreenCoordinates,
+  zoom: number,
+  canvas: fabric.Canvas,
+): IScreenCoordinates {
+  if (!canvas.viewportTransform) return { x: 0, y: 0 }
+  if (!p.x || !p.y) return { x: 0, y: 0 }
+
+  return {
+    x: p.x * zoom + canvas.viewportTransform[xIndex],
+    y: p.y * zoom + canvas.viewportTransform[yIndex],
+  }
+}
+
 export {
   uuidv4,
   ucFirst,
   findById,
-  removeCanvasMouseEvents,
   getPointCoordinatesInViewport,
   setAllObjectsSelection,
+  ConvertPointIntoCanvasCoordinates,
+  ConvertPointIntoScreenCoordinates,
 }

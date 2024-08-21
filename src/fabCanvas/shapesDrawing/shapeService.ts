@@ -5,6 +5,14 @@ import {
   setAllObjectsSelection,
 } from "../canvas-utils"
 import { DrawingShapeKind } from "../../components/Slate/store/types"
+import {
+  removeCanvasHandler,
+  tryAddCanvasHandler,
+} from "../canvasEvents/canvasEventsService"
+
+const startShapeDrawingName = "StartShapeDrawing"
+const shapeDrawingInProgressName = "ShapeDrawingInProgress"
+const stopShapeDrawingName = "StopShapeDrawing"
 
 function updateShape(
   canvas: fabric.Canvas,
@@ -110,7 +118,7 @@ function turnOnShapeDrawingMode(
     },
   }
 
-  canvas.on("mouse:down", function (e: fabric.IEvent<MouseEvent>) {
+  const mouseDownHandler = (e: fabric.IEvent<MouseEvent>) => {
     if (!e.pointer) return
 
     setAllObjectsSelection(canvas, false)
@@ -133,17 +141,31 @@ function turnOnShapeDrawingMode(
     canvas.add(shape)
 
     canvas.renderAll()
-  })
+  }
 
-  canvas.on("mouse:move", function (e) {
+  tryAddCanvasHandler(
+    canvas,
+    "mouse:down",
+    startShapeDrawingName,
+    mouseDownHandler,
+  )
+
+  const mouseMoveHandler = (e: fabric.IEvent<MouseEvent>) => {
     if (!dragging) {
       return
     }
 
     updateShape(canvas, e.pointer, drawingShapeKind, shape, initialPos, bounds)
-  })
+  }
 
-  canvas.on("mouse:up", function (o) {
+  tryAddCanvasHandler(
+    canvas,
+    "mouse:move",
+    shapeDrawingInProgressName,
+    mouseMoveHandler,
+  )
+
+  const mouseUpHandler = (e: fabric.IEvent<MouseEvent>) => {
     dragging = false
     if (shape && (shape.width === 0 || shape.height === 0)) {
       canvas.remove(shape)
@@ -167,9 +189,15 @@ function turnOnShapeDrawingMode(
     canvasState.isSendingBlocked = false
 
     canvas.add(shape)
+  }
 
-    //shape.selectable = true
-  })
+  tryAddCanvasHandler(canvas, "mouse:up", stopShapeDrawingName, mouseUpHandler)
 }
 
-export { turnOnShapeDrawingMode }
+function turnOffShapeDrawingMode() {
+  removeCanvasHandler("mouse:down", startShapeDrawingName)
+  removeCanvasHandler("mouse:move", shapeDrawingInProgressName)
+  removeCanvasHandler("mouse:up", stopShapeDrawingName)
+}
+
+export { turnOnShapeDrawingMode, turnOffShapeDrawingMode }

@@ -3,7 +3,9 @@ import { createAction, createSlice } from "@reduxjs/toolkit"
 import { DrawingShapeKind, EditMode, type ISlateState } from "./types"
 
 export const initialState: ISlateState = {
+  otherUserCursorData: null,
   connectionState: "Disconnected",
+  userId: "TEST USER", //!!! Замени на реальный идентификатор пользователя
   mainCanvas: null,
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
@@ -65,6 +67,10 @@ export const slateSlice = createSlice({
     },
 
     //===================================================
+    moveCursorOnCanvas: (state, action) => {
+      state.otherUserCursorData = action.payload
+    },
+
     addObjectOnCanvas: (state, action) => {
       state.currentAddedCanvasObject = action.payload
     },
@@ -85,6 +91,8 @@ export const slateSlice = createSlice({
       state.currentObjectRotationData = action.payload
     },
     //===================================================
+
+    sendCursorTrackingData: (state, action) => {},
 
     sendCanvasObject: (state, action) => {
       const blackboardObj = action.payload
@@ -135,12 +143,14 @@ export const {
   setDrawingColor,
   setCanvasZoom,
 
+  moveCursorOnCanvas,
   addObjectOnCanvas,
   deleteObjectsFromCanvasByIds,
   moveObjectOnCanvas,
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
 
+  sendCursorTrackingData,
   sendCanvasObject,
   sendCanvasObjectModification,
   sendDeletedFromCanvasObjectsIds,

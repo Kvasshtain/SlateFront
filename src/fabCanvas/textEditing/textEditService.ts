@@ -8,45 +8,16 @@ import type {
 } from "../../components/Slate/store/types"
 import { deleteObjectsFromCanvasByIds } from "../canvasObjectDeletion/selectedObjectsDeletService"
 import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
+import {
+  ConvertPointIntoCanvasCoordinates,
+  ConvertPointIntoScreenCoordinates,
+} from "../canvas-utils"
 
-const xIndex = 4
-const yIndex = 5
+const textDblClickName = "TextDblClick"
 const textEditMarker = "TextEditMarker"
 const transparent = "rgba(0,0,0,0)"
 let zoomCallback: () => void
 let isFirstClick: boolean = true
-
-function ConvertPointIntoCanvasCoordinates(
-  p: IScreenCoordinates,
-  zoom: number,
-  canvas: fabric.Canvas,
-): IScreenCoordinates {
-  if (!canvas.viewportTransform) return { x: 0, y: 0 }
-  if (!p.x || !p.y) return { x: 0, y: 0 }
-
-  return {
-    x:
-      p.x / zoom +
-      fabric.util.invertTransform(canvas.viewportTransform)[xIndex],
-    y:
-      p.y / zoom +
-      fabric.util.invertTransform(canvas.viewportTransform)[yIndex],
-  }
-}
-
-function ConvertPointIntoScreenCoordinates(
-  p: IScreenCoordinates,
-  zoom: number,
-  canvas: fabric.Canvas,
-): IScreenCoordinates {
-  if (!canvas.viewportTransform) return { x: 0, y: 0 }
-  if (!p.x || !p.y) return { x: 0, y: 0 }
-
-  return {
-    x: p.x * zoom + canvas.viewportTransform[xIndex],
-    y: p.y * zoom + canvas.viewportTransform[yIndex],
-  }
-}
 
 function CreateTextEditMarkerShape(canvasClickPoint: IScreenCoordinates) {
   return new fabric.Ellipse({
@@ -164,10 +135,9 @@ function initTextDblClickEditing(
   tryAddCanvasHandler(
     canvas,
     "mouse:dblclick",
-    "TextDblClick",
+    textDblClickName,
     mouseDblclickHandler,
   )
-  //canvas?.on("mouse:dblclick", mouseDblclickHandler)
 }
 
 function turnOnTextEditMode(
