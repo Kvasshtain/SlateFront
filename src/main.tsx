@@ -5,15 +5,30 @@ import App from "./App"
 import { store } from "./app/store"
 import "./index.css"
 
+import {
+  createRoutesFromElements,
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Routes,
+} from "react-router-dom"
+
 const container = document.getElementById("root")
 
 if (container) {
   const root = createRoot(container)
 
+  const router = createBrowserRouter([
+    {
+      path: "/*",
+      element: <App />,
+    },
+  ])
+
   root.render(
     <React.StrictMode>
       <Provider store={store}>
-        <App />
+        <RouterProvider router={router} />
       </Provider>
     </React.StrictMode>,
   )

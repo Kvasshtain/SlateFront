@@ -1,4 +1,4 @@
-import type { TextAlign } from "csstype"
+import type { Property } from "csstype"
 import type { fabric } from "fabric"
 
 export interface ICursorData {
@@ -54,7 +54,16 @@ export interface IBoardPicture {
 
 export interface ISlateState {
   connectionState: string
+
+  isUserAuthenticated: boolean
   userId: string | null
+  userName: string | null
+  userEmail: string | null
+  userPassword: string | null
+  newUserName: string | null
+  newUserEmail: string | null
+  newUserPassword: string | null
+
   mainCanvas: fabric.Canvas | null
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
@@ -107,7 +116,7 @@ export interface IFontProperties {
   fontFamily: string
   stroke: string
   strokeWidth: string
-  textAlign: TextAlign | undefined
+  textAlign: Property.TextAlign | undefined
   lineHeight: number
   textBackgroundColor: string
 }

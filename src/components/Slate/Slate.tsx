@@ -11,11 +11,34 @@ import {
 import FabJSCanvas from "./components/FabJSCanvas/FabJSCanvas"
 import Blackboard from "./components/Blackboard"
 import React from "react"
+import {
+  createRoutesFromElements,
+  createBrowserRouter,
+  Route,
+  Routes,
+  useNavigate,
+  Navigate,
+} from "react-router-dom"
+import AuthAndRegWindow from "./components/AuthAndReg/AuthAndRegWindow"
+
+const tokenKey = "accessToken"
 
 function Slate() {
   const state = useAppSelector((state) => state.playground)
   const dispatch = useAppDispatch()
   const firstRender = useRef(true)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!firstRender.current) return
+
+    firstRender.current = false
+
+    dispatch(startConnecting())
+    dispatch(makeFromDocumentBodyDropImageZone())
+    dispatch(initKeyActions())
+  }, [dispatch])
 
   useEffect(() => {
     if (!firstRender.current) return
@@ -28,14 +51,25 @@ function Slate() {
   }, [dispatch])
 
   return (
-    <div>
-      {state.connectionState === "Connected" && (
-        <React.Fragment>
-          <FabJSCanvas />
-          <Blackboard />
-        </React.Fragment>
-      )}
-    </div>
+    <>
+      <Routes>
+        <Route path="/login" element={<AuthAndRegWindow />} />
+        <Route
+          path="/blackboard"
+          element={
+            <div>
+              {state.connectionState === "Connected" && (
+                <React.Fragment>
+                  <FabJSCanvas />
+                  <Blackboard />
+                </React.Fragment>
+              )}
+            </div>
+          }
+        />
+      </Routes>
+      <Navigate to="/login" replace={true} />
+    </>
   )
 }
 

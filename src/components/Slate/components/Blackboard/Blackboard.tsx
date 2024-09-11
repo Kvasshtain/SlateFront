@@ -8,6 +8,7 @@ import {
   setEditMode,
 } from "../../store/slices"
 //import type { IScreenCoordinates } from "../../store/types"
+import type { ISlateState } from "../../store/types"
 import {
   DrawingShapeKind,
   EditMode,
@@ -19,9 +20,10 @@ import React from "react"
 import Dropdown from "../Dropdown"
 import MenuItem from "../Dropdown/components/MenuItem"
 import { Behaviour, type IDropdownProps } from "../Dropdown/types"
+import UserPanel from "../UserPanel"
 
 const Blackboard: React.FC = () => {
-  const state: any = useAppSelector((state) => state.playground)
+  const state: ISlateState = useAppSelector((state) => state.playground)
 
   const dispatch = useAppDispatch()
 
@@ -140,6 +142,7 @@ const Blackboard: React.FC = () => {
         <button onClick={addRectButtonClickHandler}>Add rectangle</button>
         <button onClick={addCircleButtonClickHandler}>Add ellipse</button>
         <button onClick={addTriangleButtonClickHandler}>Add triangle</button>
+        <UserPanel />
       </div>
       {state.userInputFieldCoordinates?.x &&
         state.userInputFieldCoordinates?.y &&

@@ -1,11 +1,21 @@
 import { createAction, createSlice } from "@reduxjs/toolkit"
 
 import { DrawingShapeKind, EditMode, type ISlateState } from "./types"
+import { stat } from "fs"
 
 export const initialState: ISlateState = {
-  otherUserCursorData: null,
   connectionState: "Disconnected",
+
+  isUserAuthenticated: false,
   userId: "TEST USER", //!!! Замени на реальный идентификатор пользователя
+  userName: null,
+  userEmail: null,
+  userPassword: null,
+  newUserName: null,
+  newUserEmail: null,
+  newUserPassword: null,
+
+  otherUserCursorData: null,
   mainCanvas: null,
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
@@ -33,6 +43,27 @@ export const slateSlice = createSlice({
   initialState,
   reducers: {
     resetStore: () => initialState,
+
+    setIsUserAuthenticated: (state, action) => {
+      state.isUserAuthenticated = action.payload
+    },
+
+    setUserInfo: (state, action) => {
+      state.userId = action.payload.userId
+      state.userName = action.payload.userName
+      state.userEmail = action.payload.userEmail
+    },
+
+    submitUserEmailAndPassword: (state, action) => {
+      state.userEmail = action.payload.userEmail
+      state.userPassword = action.payload.userPassword
+    },
+
+    submitNewUser: (state, action) => {
+      state.newUserName = action.payload.newUserName
+      state.newUserEmail = action.payload.newUserEmail
+      state.newUserPassword = action.payload.newUserPassword
+    },
 
     setMainCanvas: (state, action) => {
       state.mainCanvas = action.payload
@@ -133,6 +164,13 @@ export const slateSlice = createSlice({
 export const {
   resetStore,
   setMainCanvas,
+
+  setIsUserAuthenticated,
+  setUserInfo,
+
+  submitUserEmailAndPassword,
+  submitNewUser,
+
   startConnecting,
   makeFromDocumentBodyDropImageZone,
   initKeyActions,
