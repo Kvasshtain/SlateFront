@@ -12,9 +12,10 @@ const cursorTrackingName = "CursorTracking"
 const cursorMarker = "CursorMarker"
 
 function CreateCursorTrackingMarkerShape(
+  uaerName: string,
   canvasCursorPoint: IScreenCoordinates,
 ) {
-  var cursorLabel = new fabric.Text("USER", {
+  var cursorLabel = new fabric.Text(uaerName, {
     left: canvasCursorPoint.x,
     top: canvasCursorPoint.y,
     fill: "rgba(0, 0, 255, 0.5)",
@@ -39,7 +40,7 @@ function CreateCursorTrackingMarkerShape(
 
 function initCursorTracking(
   canvas: fabric.Canvas,
-  userId: string,
+  userName: string,
   cursorTrackingHandler: (cursorTrackingData: ICursorData) => void,
 ) {
   const mouseMoveHandler = (e: fabric.IEvent<MouseEvent>) => {
@@ -54,7 +55,7 @@ function initCursorTracking(
     if (!canvasCursorPoint.x || !canvasCursorPoint.y) return
 
     const cursorTrackingData: ICursorData = {
-      userId: userId,
+      userName: userName,
       left: canvasCursorPoint.x,
       top: canvasCursorPoint.y,
     }
@@ -79,7 +80,10 @@ const moveOtherUserCursor = (
 
   deleteObjectsFromCanvasByIds(canvas, [cursorMarker])
   canvas.add(
-    CreateCursorTrackingMarkerShape({ x: cursorData.left, y: cursorData.top }),
+    CreateCursorTrackingMarkerShape(cursorData.userName, {
+      x: cursorData.left,
+      y: cursorData.top,
+    }),
   )
   canvas.renderAll()
 }

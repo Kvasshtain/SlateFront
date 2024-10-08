@@ -17,6 +17,7 @@ export const initialState: ISlateState = {
 
   otherUserCursorData: null,
   mainCanvas: null,
+  hubConnection: null,
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
   currentDrawingColor: "Black",
@@ -70,6 +71,12 @@ export const slateSlice = createSlice({
     },
 
     startConnecting: () => {},
+
+    stopConnecting: () => {},
+
+    setHubConnection: (state, action) => {
+      state.hubConnection = action.payload
+    },
 
     makeFromDocumentBodyDropImageZone: () => {},
 
@@ -172,6 +179,9 @@ export const {
   submitNewUser,
 
   startConnecting,
+  stopConnecting,
+  setHubConnection,
+
   makeFromDocumentBodyDropImageZone,
   initKeyActions,
   setConnectionState,

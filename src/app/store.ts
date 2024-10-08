@@ -14,7 +14,7 @@ export const rootReducer = combineSlices(slateSlice, authRegApiSlice)
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>
 
-export const hubConnection = createHubConnection()
+//export const hubConnection = createHubConnection()
 
 // The store setup is wrapped in `makeStore` to allow reuse
 // when setting up tests that need the same store config
@@ -25,7 +25,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     // and other useful features of `rtk-query`.
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware().concat(
-        createSignalMiddleware(hubConnection),
+        createSignalMiddleware(),
         fabCanvasMiddleware(),
         authRegApiSlice.middleware,
       )
