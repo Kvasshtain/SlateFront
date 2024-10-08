@@ -13,6 +13,7 @@ import {
   sendDeletedFromCanvasObjectsIds,
   sendCursorTrackingData,
   moveCursorOnCanvas,
+  stopConnecting,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
 import type {
@@ -20,16 +21,45 @@ import type {
   ICursorData,
 } from "../components/Slate/store/types"
 
-const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
+const createSignalMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
-    if (startConnecting.match(action)) {
+    const state = store.getState()
+    const hubConnection: HubConnection = state.playground.hubConnection
+
+    if (stopConnecting.match(action) && hubConnection) {
+      if (hubConnection.state !== "Disconnected") {
+        await hubConnection.stop().catch((err) => console.error(err.toString()))
+
+        store.dispatch(setConnectionState(hubConnection.state))
+      }
+    }
+
+    if (startConnecting.match(action) && hubConnection) {
       if (hubConnection.state === "Disconnected") {
-        await hubConnection.start()
+        await hubConnection
+          .start()
+          .catch((err) => console.error(err.toString()))
 
         store.dispatch(setConnectionState(hubConnection.state))
       }
 
       hubConnection.on("AddObjectError", (img) => {
+        //Add error handler!!!
+      })
+
+      hubConnection.on("DeleteObjectsError", (payload) => {
+        //Add error handler!!!
+      })
+
+      hubConnection.on("DragObjectError", (img) => {
+        //Add error handler!!!
+      })
+
+      hubConnection.on("ScaleObjectError", (img) => {
+        //Add error handler!!!
+      })
+
+      hubConnection.on("RotateObjectError", (img) => {
         //Add error handler!!!
       })
 
@@ -69,7 +99,7 @@ const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
 
       hubConnection
         .invoke("MoveCursor", {
-          UserId: cursorData.userId,
+          UserName: cursorData.userName,
           Left: cursorData.left,
           Top: cursorData.top,
         })

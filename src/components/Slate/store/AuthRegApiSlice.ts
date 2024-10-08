@@ -6,6 +6,11 @@ export interface User {
   password: string
 }
 
+interface RegApiResponse {
+  isSuccess: boolean
+  failureReason: string
+}
+
 export interface LoginData {
   email: string
   password: string
@@ -32,6 +37,16 @@ export const authRegApiSlice = createApi({
   reducerPath: "authRegApi",
   tagTypes: ["AuthReg"],
   endpoints: (build) => ({
+    regNewUser: build.mutation<RegApiResponse, User>({
+      query: (body: LoginData) => ({
+        url: `registration`,
+        method: "POST",
+        body,
+        crossDomain: true,
+        responseType: "json",
+      }),
+    }),
+
     getAuthData: build.mutation<LoginApiResponse, LoginData>({
       query: (body: LoginData) => ({
         url: `login`,
@@ -41,6 +56,7 @@ export const authRegApiSlice = createApi({
         responseType: "json",
       }),
     }),
+
     // signOut: build.mutation<LogOutRespoce, LogOutData>({
     //   query: (body: LogOutData) => ({
     //     url: `logout`,
@@ -53,4 +69,7 @@ export const authRegApiSlice = createApi({
   }),
 })
 
-export const { useGetAuthDataMutation /*useSignOutMutation*/ } = authRegApiSlice
+export const {
+  useRegNewUserMutation,
+  useGetAuthDataMutation /*useSignOutMutation*/,
+} = authRegApiSlice

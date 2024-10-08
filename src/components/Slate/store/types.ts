@@ -1,8 +1,9 @@
 import type { Property } from "csstype"
 import type { fabric } from "fabric"
+import type { HubConnection } from "redux-signalr"
 
 export interface ICursorData {
-  userId: string
+  userName: string
   left: number
   top: number
 }
@@ -65,6 +66,7 @@ export interface ISlateState {
   newUserPassword: string | null
 
   mainCanvas: fabric.Canvas | null
+  hubConnection: HubConnection | null
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
   currentDrawingColor: string

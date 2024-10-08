@@ -12,8 +12,11 @@ import {
   submitUserEmailAndPassword,
 } from "../../store/slices"
 import AuthAndRegForm from "./components/AuthAndRegForm"
-import type { LoginData} from "../../store/AuthRegApiSlice";
-import { useGetAuthDataMutation } from "../../store/AuthRegApiSlice"
+import type { LoginData, User } from "../../store/AuthRegApiSlice"
+import {
+  useGetAuthDataMutation,
+  useRegNewUserMutation,
+} from "../../store/AuthRegApiSlice"
 //import { AuthAndRegForm } from './components/AuthAndRegForm/AuthAndRegForm';
 
 // export interface IAuthAndRegWindowProps {
@@ -28,7 +31,10 @@ const userEmailKey = "userEmail"
 const AuthAndRegWindow: React.FC = () => {
   const state: ISlateState = useAppSelector((state) => state.playground)
 
-  const [sendLoginData, { data, isLoading }] = useGetAuthDataMutation()
+  const [sendNewUserData, { data: regData, isLoading: regIsLoading }] =
+    useRegNewUserMutation()
+  const [sendLoginData, { data: logData, isLoading: logIsLoading }] =
+    useGetAuthDataMutation()
 
   const dispatch = useAppDispatch()
 
@@ -40,6 +46,14 @@ const AuthAndRegWindow: React.FC = () => {
     navigate("/blackboard")
   })
 
+  const onRegUser = async (userData: User) => {
+    await sendNewUserData(userData)
+      .unwrap()
+      .catch((error) => {
+        console.log(error.status)
+      }) // !!! необходимо сделать оповещение пользователя о ошибке регистрации
+  }
+
   const onAuthenticationSubmit = async (loginData: LoginData) => {
     await sendLoginData(loginData)
       .unwrap()
@@ -49,41 +63,44 @@ const AuthAndRegWindow: React.FC = () => {
   }
 
   useEffect(() => {
-    let accessToken = data?.accessToken
+    let accessToken = logData?.accessToken
 
     if (!accessToken) return
 
     sessionStorage.setItem(tokenKey, accessToken)
 
-    sessionStorage.setItem(userIdKey, data?.id ? data?.id.toString() : "")
-    sessionStorage.setItem(userNameKey, data?.userName ? data?.userName : "")
+    sessionStorage.setItem(userIdKey, logData?.id ? logData?.id.toString() : "")
+    sessionStorage.setItem(
+      userNameKey,
+      logData?.userName ? logData?.userName : "",
+    )
     sessionStorage.setItem(
       userEmailKey,
-      data?.userEmail ? data?.userEmail.toString() : "",
+      logData?.userEmail ? logData?.userEmail.toString() : "",
     )
 
     dispatch(setIsUserAuthenticated(true))
     dispatch(
       setUserInfo({
-        userId: data?.id,
-        userName: data?.userName,
-        userEmail: data?.userEmail,
+        userId: logData?.id,
+        userName: logData?.userName,
+        userEmail: logData?.userEmail,
       }),
     )
 
     navigate("/login")
-  }, [data, dispatch])
+  }, [logData, dispatch])
 
   return (
     <div>
       <AuthAndRegForm
         onAuthenticationSubmit={onAuthenticationSubmit}
-        onRegistrationSubmit={submitNewUser}
+        onRegistrationSubmit={onRegUser}
       />
-      <div>{data?.id}</div>
-      <div>{data?.userName}</div>
-      <div>{data?.userEmail}</div>
-      <div>{data?.accessToken}</div>
+      <div>{logData?.id}</div>
+      <div>{logData?.userName}</div>
+      <div>{logData?.userEmail}</div>
+      <div>{logData?.accessToken}</div>
     </div>
   )
 }

@@ -28,24 +28,14 @@ function Slate() {
   const dispatch = useAppDispatch()
   const firstRender = useRef(true)
 
-  const navigate = useNavigate()
+  //const navigate = useNavigate()
 
   useEffect(() => {
     if (!firstRender.current) return
 
     firstRender.current = false
 
-    dispatch(startConnecting())
-    dispatch(makeFromDocumentBodyDropImageZone())
-    dispatch(initKeyActions())
-  }, [dispatch])
-
-  useEffect(() => {
-    if (!firstRender.current) return
-
-    firstRender.current = false
-
-    dispatch(startConnecting())
+    //dispatch(startConnecting())
     dispatch(makeFromDocumentBodyDropImageZone())
     dispatch(initKeyActions())
   }, [dispatch])
@@ -58,12 +48,10 @@ function Slate() {
           path="/blackboard"
           element={
             <div>
-              {state.connectionState === "Connected" && (
-                <React.Fragment>
-                  <FabJSCanvas />
-                  <Blackboard />
-                </React.Fragment>
-              )}
+              <React.Fragment>
+                <FabJSCanvas />
+                <Blackboard />
+              </React.Fragment>
             </div>
           }
         />

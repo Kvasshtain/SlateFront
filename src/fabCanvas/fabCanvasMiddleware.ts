@@ -77,7 +77,7 @@ const fabCanvasMiddleware = (): Middleware => {
 
       initCursorTracking(
         canvas,
-        store.getState().playground?.userId,
+        store.getState().playground?.userName,
         (cursorTrackingData) => {
           store.dispatch(sendCursorTrackingData(cursorTrackingData))
         },
