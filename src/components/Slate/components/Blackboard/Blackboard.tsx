@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import { useNavigate } from "react-router"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import {
   addTextOnCanvas,
@@ -6,6 +7,8 @@ import {
   setDrawingColor,
   setDrawingShapeKind,
   setEditMode,
+  setHubConnection,
+  startConnecting,
 } from "../../store/slices"
 //import type { IScreenCoordinates } from "../../store/types"
 import type { ISlateState } from "../../store/types"
@@ -21,11 +24,15 @@ import Dropdown from "../Dropdown"
 import MenuItem from "../Dropdown/components/MenuItem"
 import { Behaviour, type IDropdownProps } from "../Dropdown/types"
 import UserPanel from "../UserPanel"
+import createHubConnection from "../../../../signalR/createHubConnection"
+
+const tokenKey = "accessToken"
 
 const Blackboard: React.FC = () => {
   const state: ISlateState = useAppSelector((state) => state.playground)
 
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const firstRender = useRef(true)
 
@@ -56,9 +63,32 @@ const Blackboard: React.FC = () => {
 
   useEffect(() => {
     if (!firstRender.current) return
+
+    if (state.connectionState !== "Connected") return
+
     firstRender.current = false
 
     dispatch(requestAllCanvasObjects())
+  }, [state, dispatch])
+
+  useEffect(() => {
+    const hubConnection = state.hubConnection
+    const token = sessionStorage.getItem(tokenKey)
+
+    if (hubConnection) return
+
+    if (!token) {
+      navigate("/login")
+      return
+    }
+
+    if (!state.hubConnection) {
+      dispatch(setHubConnection(createHubConnection(token)))
+    }
+
+    if (state.connectionState !== "Disconnected") return
+
+    dispatch(startConnecting())
   }, [dispatch])
 
   const onEndTextEditingHandler = (text: string): void => {

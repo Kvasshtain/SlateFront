@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import type { ISlateState } from "../../store/types"
 
 import type React from "react"
-import { setIsUserAuthenticated } from "../../store/slices"
+import { setHubConnection, setIsUserAuthenticated } from "../../store/slices"
 
 const tokenKey = "accessToken" //Вынеси в отдельный файл!!!
 const userIdKey = "userId"
@@ -36,6 +36,9 @@ const UserPanel: React.FC = () => {
     sessionStorage.removeItem(userEmailKey)
 
     dispatch(setIsUserAuthenticated(false))
+
+    state.hubConnection?.stop()
+    dispatch(setHubConnection(null))
 
     navigate("/login")
   }

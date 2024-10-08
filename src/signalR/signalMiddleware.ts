@@ -20,11 +20,16 @@ import type {
   ICursorData,
 } from "../components/Slate/store/types"
 
-const createSignalMiddleware = (hubConnection: HubConnection): Middleware => {
+const createSignalMiddleware = (): Middleware => {
   return (store) => (next) => async (action) => {
-    if (startConnecting.match(action)) {
+    const state = store.getState()
+    const hubConnection: HubConnection = state.playground.hubConnection
+
+    if (startConnecting.match(action) && hubConnection) {
       if (hubConnection.state === "Disconnected") {
-        await hubConnection.start()
+        await hubConnection
+          .start()
+          .catch((err) => console.error(err.toString()))
 
         store.dispatch(setConnectionState(hubConnection.state))
       }
