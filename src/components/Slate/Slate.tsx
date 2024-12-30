@@ -20,17 +20,39 @@ import {
   Navigate,
 } from "react-router-dom"
 import AuthAndRegWindow from "./components/AuthAndReg/AuthAndRegWindow"
+import MainWindow from "./components/MainWindow"
+import { useGetQuotesQuery } from "./store/TestApiSlice"
 
 const tokenKey = "accessToken"
 
 function Slate() {
-  const state = useAppSelector((state) => state.playground)
-  const dispatch = useAppDispatch()
-  const firstRender = useRef(true)
+  // const { data, isError, isLoading, isSuccess } =
+  // useGetQuotesQuery(5)//useGetQuotesQuery(numberOfQuotes)
 
-  //const navigate = useNavigate()
+  // if (isError) { //!!!!!!!!!!!!!Вернуть!!!!!!!!!
+  //   return (
+  //     <div>
+  //       <h1>There was an error!!!</h1>
+  //     </div>
+  //   )
+  // }
+
+  // if (isLoading) { //!!!!!!!!!!!!!Вернуть!!!!!!!!!
+  //   return (
+  //     <div>
+  //       <h1>Loading...</h1>
+  //     </div>
+  //   )
+  // }
+
+  const state = useAppSelector((state) => state.playground) //!!!!!!!!!!!!!Вернуть!!!!!!!!!
+  const dispatch = useAppDispatch() //!!!!!!!!!!!!!Вернуть!!!!!!!!!
+  const firstRender = useRef(true) //!!!!!!!!!!!!!Вернуть!!!!!!!!!
+
+  const navigate = useNavigate()
 
   useEffect(() => {
+    //!!!!!!!!!!!!!Вернуть!!!!!!!!!
     if (!firstRender.current) return
 
     firstRender.current = false
@@ -40,10 +62,35 @@ function Slate() {
     dispatch(initKeyActions())
   }, [dispatch])
 
+  // return (
+  //   <h1>HELLO!!!</h1>
+  // )
+
+  // if (!data) {
+  //   return (
+  //     <h1>Data is undefind</h1>
+  //   )
+  // }
+
+  // return (
+  //   <div>
+  //     {data.quotes.map(({ author, quote, id }) => (
+  //         <blockquote key={id}>
+  //           &ldquo;{quote}&rdquo;
+  //           <footer>
+  //             <cite>{author}</cite>
+  //           </footer>
+  //         </blockquote>
+  //       ))}
+  //   </div>
+  // )
+
   return (
+    //!!!!!!!!!!!!!Вернуть!!!!!!!!!
     <>
       <Routes>
         <Route path="/login" element={<AuthAndRegWindow />} />
+        <Route path="/mainWindow" element={<MainWindow />} />
         <Route
           path="/blackboard"
           element={

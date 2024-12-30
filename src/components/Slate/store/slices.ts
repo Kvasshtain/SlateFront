@@ -7,13 +7,15 @@ export const initialState: ISlateState = {
   connectionState: "Disconnected",
 
   isUserAuthenticated: false,
-  userId: "TEST USER", //!!! Замени на реальный идентификатор пользователя
+  userId: null,
   userName: null,
   userEmail: null,
   userPassword: null,
   newUserName: null,
   newUserEmail: null,
   newUserPassword: null,
+
+  activeBlackboardId: null,
 
   otherUserCursorData: null,
   mainCanvas: null,
@@ -66,6 +68,10 @@ export const slateSlice = createSlice({
       state.newUserPassword = action.payload.newUserPassword
     },
 
+    setActiveBlackboardId: (state, action) => {
+      state.activeBlackboardId = action.payload
+    },
+
     setMainCanvas: (state, action) => {
       state.mainCanvas = action.payload
     },
@@ -85,6 +91,8 @@ export const slateSlice = createSlice({
     setConnectionState: (state, action) => {
       state.connectionState = action.payload
     },
+
+    requestAllUsersBlackboard: () => {},
 
     requestAllCanvasObjects: () => {},
 
@@ -178,6 +186,8 @@ export const {
   submitUserEmailAndPassword,
   submitNewUser,
 
+  setActiveBlackboardId,
+
   startConnecting,
   stopConnecting,
   setHubConnection,
@@ -185,6 +195,7 @@ export const {
   makeFromDocumentBodyDropImageZone,
   initKeyActions,
   setConnectionState,
+  requestAllUsersBlackboard,
   requestAllCanvasObjects,
   setEditMode,
   setDrawingShapeKind,

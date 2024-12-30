@@ -1,5 +1,4 @@
 import type React from "react"
-import PropTypes from "prop-types"
 
 //import './InputField.sass'
 
@@ -12,7 +11,9 @@ export interface IAuthAndRegFormProps {
   onChange: (eventArg: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const InputField = (props: IAuthAndRegFormProps) => {
+const InputField: React.FC<IAuthAndRegFormProps> = (
+  props: IAuthAndRegFormProps,
+) => {
   const { caption, name, placeholder, type, value, onChange } = props
 
   return (

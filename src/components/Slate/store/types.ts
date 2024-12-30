@@ -65,6 +65,8 @@ export interface ISlateState {
   newUserEmail: string | null
   newUserPassword: string | null
 
+  activeBlackboardId: string | null
+
   mainCanvas: fabric.Canvas | null
   hubConnection: HubConnection | null
   editMode: EditMode

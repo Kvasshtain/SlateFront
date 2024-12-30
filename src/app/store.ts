@@ -7,10 +7,18 @@ import createSignalMiddleware from "../signalR/signalMiddleware"
 import createHubConnection from "../signalR/createHubConnection"
 import fabCanvasMiddleware from "../fabCanvas/fabCanvasMiddleware"
 import { authRegApiSlice } from "../components/Slate/store/AuthRegApiSlice"
+import { blackboardsApiSlice } from "../components/Slate/store/BlackboardsApiSlice"
+import { quotesApiSlice } from "../components/Slate/store/TestApiSlice"
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-export const rootReducer = combineSlices(slateSlice, authRegApiSlice)
+export const rootReducer = combineSlices(
+  slateSlice,
+  authRegApiSlice,
+  blackboardsApiSlice,
+  quotesApiSlice,
+) //!!!!!!!!!!Вернуть назад!!!!!!!
+//export const rootReducer = combineSlices(slateSlice, quotesApiSlice) //!!!!!!!!УДАДИ!!!!!!!
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>
 
@@ -25,9 +33,11 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     // and other useful features of `rtk-query`.
     middleware: (getDefaultMiddleware) => {
       return getDefaultMiddleware().concat(
+        quotesApiSlice.middleware,
+        authRegApiSlice.middleware,
+        blackboardsApiSlice.middleware,
         createSignalMiddleware(),
         fabCanvasMiddleware(),
-        authRegApiSlice.middleware,
       )
     },
     preloadedState,

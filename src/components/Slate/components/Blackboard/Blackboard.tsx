@@ -95,7 +95,7 @@ const Blackboard: React.FC = () => {
       firstRender.current = false
       return
     }
-  }, [state, dispatch])
+  }, [state, dispatch, navigate])
 
   const onEndTextEditingHandler = (text: string): void => {
     dispatch(setEditMode(EditMode.None))

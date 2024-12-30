@@ -1,5 +1,5 @@
-import type { FormEvent} from "react";
-import type React from "react";
+import type { FormEvent } from "react"
+import type React from "react"
 import { useState } from "react"
 import PropTypes from "prop-types"
 
@@ -8,8 +8,8 @@ import PropTypes from "prop-types"
 //import './AuthenticationAndRegistrationForm.sass'
 //import '../SubmitButton/SubmitButton.sass'
 //import './__Label/AuthenticationAndRegistrationForm-Label.sass'
-import InputField from "../InputField"
 import type { LoginData } from "../../../../store/AuthRegApiSlice"
+import InputField from "../../../InputField"
 
 export interface IAuthAndRegFormProps {
   onAuthenticationSubmit: (loginData: LoginData) => void

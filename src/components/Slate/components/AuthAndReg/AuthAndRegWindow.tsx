@@ -43,7 +43,8 @@ const AuthAndRegWindow: React.FC = () => {
   useEffect(() => {
     if (!sessionStorage.getItem(tokenKey)) return
 
-    navigate("/blackboard")
+    //navigate("/blackboard")
+    navigate("/mainWindow")
   })
 
   const onRegUser = async (userData: User) => {
@@ -87,8 +88,6 @@ const AuthAndRegWindow: React.FC = () => {
         userEmail: logData?.userEmail,
       }),
     )
-
-    navigate("/login")
   }, [logData, dispatch])
 
   return (

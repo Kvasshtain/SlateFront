@@ -1,4 +1,9 @@
-import type { HTMLAttributes, PropsWithChildren } from "react"
+import type {
+  HTMLAttributes,
+  PropsWithChildren,
+  ReactNode,
+  RefAttributes,
+} from "react"
 import React, { forwardRef } from "react"
 import styled from "styled-components"
 
