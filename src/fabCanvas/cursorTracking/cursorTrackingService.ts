@@ -41,6 +41,7 @@ function CreateCursorTrackingMarkerShape(
 function initCursorTracking(
   canvas: fabric.Canvas,
   userName: string,
+  blackboardId: number,
   cursorTrackingHandler: (cursorTrackingData: ICursorData) => void,
 ) {
   const mouseMoveHandler = (e: fabric.IEvent<MouseEvent>) => {
@@ -58,6 +59,7 @@ function initCursorTracking(
       userName: userName,
       left: canvasCursorPoint.x,
       top: canvasCursorPoint.y,
+      blackboardId: blackboardId,
     }
 
     cursorTrackingHandler(cursorTrackingData)
@@ -78,7 +80,7 @@ const moveOtherUserCursor = (
   if (!canvas) return
   if (!cursorData) return
 
-  deleteObjectsFromCanvasByIds(canvas, [cursorMarker])
+  deleteObjectsFromCanvasByIds(canvas, cursorMarker)
   canvas.add(
     CreateCursorTrackingMarkerShape(cursorData.userName, {
       x: cursorData.left,

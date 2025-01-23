@@ -7,13 +7,19 @@ import type {
   IScreenCoordinates,
 } from "../../components/Slate/store/types"
 import { deleteObjectsFromCanvasByIds } from "../canvasObjectDeletion/selectedObjectsDeletService"
-import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
+import {
+  removeCanvasHandler,
+  tryAddCanvasHandler,
+} from "../canvasEvents/canvasEventsService"
 import {
   ConvertPointIntoCanvasCoordinates,
   ConvertPointIntoScreenCoordinates,
 } from "../canvas-utils"
 
+const textMouseDownName = "TextMouseDown"
 const textDblClickName = "TextDblClick"
+const textAddName = "textAdd"
+
 const textEditMarker = "TextEditMarker"
 const transparent = "rgba(0,0,0,0)"
 let zoomCallback: () => void
@@ -38,13 +44,13 @@ function initTextEditing(
   eventPoint: IScreenCoordinates,
   zoomCallbacksSet: Set<() => void>,
   text: string | null,
-  textId: string | null,
+  textId: number | string | null,
   canvasClickCoordinatesSetter: (canvasClickPoint: IScreenCoordinates) => void,
   userInputFieldCoordinatesSetter: (
     screenClickPoint: IScreenCoordinates,
   ) => void,
   presetTextSetter: (presetText: string | null) => void,
-  textIdSetter: (textId: string | null) => void,
+  textIdSetter: (textId: number | string | null) => void,
 ) {
   const canvasClickPoint = ConvertPointIntoCanvasCoordinates(
     eventPoint,
@@ -59,15 +65,17 @@ function initTextEditing(
 
   canvasState.isSendingBlocked = true
 
-  canvas.on("object:added", (evt) => {
+  const addTextHandler = (e: fabric.IEvent<MouseEvent>) => {
     if (!canvasState.isSendingBlocked) return
 
-    let target = evt.target as FabObjectWithId
+    let target = e.target as FabObjectWithId
 
     if (target === undefined) return
 
     target.id = textEditMarker
-  })
+  }
+
+  tryAddCanvasHandler(canvas, "object:added", textAddName, addTextHandler)
 
   canvas.add(CreateTextEditMarkerShape(canvasClickPoint))
 
@@ -105,7 +113,7 @@ function initTextDblClickEditing(
     screenClickPoint: IScreenCoordinates,
   ) => void,
   presetTextSetter: (presetText: string | null) => void,
-  textIdSetter: (textId: string | null) => void,
+  textIdSetter: (textId: number | string | null) => void,
   zoomCallbacksSet: Set<() => void>,
 ) {
   const mouseDblclickHandler = (e: fabric.IEvent<MouseEvent>) => {
@@ -148,7 +156,7 @@ function turnOnTextEditMode(
     screenClickPoint: IScreenCoordinates,
   ) => void,
   presetTextSetter: (presetText: string | null) => void,
-  textIdSetter: (textId: string | null) => void,
+  textIdSetter: (textId: number | string | null) => void,
   zoomCallbacksSet: Set<() => void>,
 ) {
   const mouseDownHandler = (e: fabric.IEvent<MouseEvent>) => {
@@ -171,15 +179,21 @@ function turnOnTextEditMode(
     )
   }
 
-  canvas.on("mouse:down", mouseDownHandler)
+  tryAddCanvasHandler(canvas, "mouse:down", textMouseDownName, mouseDownHandler)
 }
 
 function turnOffTextEditMode(canvas: fabric.Canvas) {
-  deleteObjectsFromCanvasByIds(canvas, [textEditMarker])
+  deleteObjectsFromCanvasByIds(canvas, textEditMarker)
+
+  removeCanvasHandler("mouse:down", textMouseDownName)
+  removeCanvasHandler("object:added", textAddName)
+
+  isFirstClick = true
 }
 
 function addTextOnCanvas(
   canvas: fabric.Canvas,
+  blackboardId: number,
   boardText: any,
   zoomCallbacksSet: Set<() => void>,
   userInputFieldCoordinatesSetter: (x: number | null, y: number | null) => void,
@@ -188,7 +202,7 @@ function addTextOnCanvas(
 ) {
   zoomCallbacksSet.delete(zoomCallback)
 
-  deleteObjectsFromCanvasByIds(canvas, [textEditMarker])
+  deleteObjectsFromCanvasByIds(canvas, textEditMarker)
 
   isFirstClick = true
 
@@ -227,15 +241,21 @@ function addTextOnCanvas(
     textBackgroundColor: style.textBackgroundColor,
   })
 
-  const editedTextId: string = boardText?.editedTextId
+  const editedTextIdStr: string = boardText?.editedTextId
 
-  if (!editedTextId) {
+  if (!editedTextIdStr) {
     canvas.add(fabText)
     canvas.renderAll()
     return
   }
 
-  textDeleter(editedTextId)
+  const editedTextId: number = Number(editedTextIdStr)
+
+  if (!Number.isInteger(editedTextId)) {
+    return
+  }
+
+  textDeleter(editedTextIdStr)
 
   textDataSender({
     id: editedTextId,
@@ -245,6 +265,7 @@ function addTextOnCanvas(
     scaleX: fabText.scaleX ?? 0,
     scaleY: fabText.scaleY ?? 0,
     angle: fabText.angle ?? 0,
+    blackboardId: blackboardId,
   })
 }
 

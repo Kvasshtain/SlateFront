@@ -78,6 +78,7 @@ const fabCanvasMiddleware = (): Middleware => {
       initCursorTracking(
         canvas,
         store.getState().playground?.userName,
+        store.getState().playground?.activeBlackboardId,
         (cursorTrackingData) => {
           store.dispatch(sendCursorTrackingData(cursorTrackingData))
         },
@@ -85,6 +86,7 @@ const fabCanvasMiddleware = (): Middleware => {
 
       initCanvasManipulation(
         canvas,
+        store.getState().playground?.activeBlackboardId,
         canvasState,
         (canvasObject) => store.dispatch(sendCanvasObject(canvasObject)),
         (objectModificationData) =>
@@ -120,6 +122,7 @@ const fabCanvasMiddleware = (): Middleware => {
     if (addTextOnCanvasAct.match(action)) {
       addTextOnCanvas(
         store.getState().playground?.mainCanvas,
+        store.getState().playground?.activeBlackboardId,
         action.payload,
         zoomCallbacksList,
         (x, y) => {

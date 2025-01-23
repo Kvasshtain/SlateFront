@@ -12,9 +12,11 @@ import type { ICanvasState } from "../types"
 import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
 
 const addNewObjectName = "addNewObject"
+const defaultId = 0
 
 function initCanvasManipulation(
   canvas: fabric.Canvas,
+  blackboardId: number,
   canvasState: ICanvasState,
   addObjectHandler: (canvasObject: ICanvasObject) => void,
   modifyObjectHandler: (
@@ -35,13 +37,14 @@ function initCanvasManipulation(
     canvas.remove(target)
 
     const blackboardObj: ICanvasObject = {
-      id: uuidv4(),
+      id: defaultId, //uuidv4(),
       data: JSON.stringify(target),
       left: target.left ?? 0,
       top: target.top ?? 0,
       scaleX: target.scaleX ?? 0,
       scaleY: target.scaleY ?? 0,
       angle: target.angle ?? 0,
+      blackboardId: blackboardId,
     }
 
     addObjectHandler(blackboardObj)

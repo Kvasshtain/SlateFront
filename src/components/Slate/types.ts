@@ -13,13 +13,13 @@ export interface IEndGameConditions {
 }
 
 class FabObjectWithId extends fabric.Object {
-  private _id!: string
+  private _id!: number | string
 
-  public get id(): string {
+  public get id(): number | string {
     return this._id
   }
 
-  public set id(str: string) {
+  public set id(str: number | string) {
     this._id = str
   }
 }

@@ -1,5 +1,9 @@
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
-import { setActiveBlackboardId } from "../../store/slices"
+import {
+  enterBlackboard,
+  setActiveBlackboardId,
+  setActiveBlackboardName,
+} from "../../store/slices"
 import { useNavigate } from "react-router"
 
 import type {
@@ -46,17 +50,14 @@ const MainWindow: React.FC = () => {
   const { data, isError, isLoading, isSuccess } =
     useGetUserBlackboardsQuery(userId)
 
-  const onSelectBlackboardHandler = (blackboardId: string): void => {
-    dispatch(setActiveBlackboardId(blackboardId))
-    navigate("/blackboard")
-  }
-
   const [
     sendNewBlackboardData,
     { data: newBlackboardData, isLoading: newBlackboardIsLoading },
   ] = useCreateNewBlackboardMutation()
 
   const [deleteBlackboard] = useDeleteBlackboardMutation()
+
+  //const [enterBlackboard] = useEnterBlackboardMutation()
 
   const onNewBlackboardSubmitHandler = async (
     newBlackboardData: NewBlackboardData,
@@ -73,11 +74,21 @@ const MainWindow: React.FC = () => {
     setIsRenderNewBlackboardForm(true)
   }
 
-  const deleteBlackboardBtnClickHandler = async (id: string) => {
+  const deleteBlackboardBtnClickHandler = async (id: number) => {
     await deleteBlackboard(id).unwrap()
     // .catch((error) => {
     //   console.log(error.status)
     // }) // !!! необходимо сделать оповещение пользователя о ошибке удаления рабочей доски
+  }
+
+  const onSelectBlackboardHandler = async (
+    blackboardId: number,
+    blackboardName: string,
+  ) => {
+    //dispatch(enterBlackboard(blackboardId))
+    dispatch(setActiveBlackboardId(blackboardId))
+    dispatch(setActiveBlackboardName(blackboardName))
+    navigate("/blackboard")
   }
 
   const renderNewBlackboardForm = () => {

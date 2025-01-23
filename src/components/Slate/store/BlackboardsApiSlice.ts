@@ -7,7 +7,7 @@ export interface NewBlackboardData {
 }
 
 export interface BlackboardData {
-  id: string
+  id: number
   name: string
   description: string
 }
@@ -55,8 +55,8 @@ export const blackboardsApiSlice = createApi({
       invalidatesTags: [{ type: "Blackboards", id: "LIST" }],
     }),
 
-    deleteBlackboard: build.mutation<BlackboardApiResponse, string>({
-      query: (id: string) => ({
+    deleteBlackboard: build.mutation<BlackboardApiResponse, number>({
+      query: (id: number) => ({
         url: `deleteBlackboard/${id}`,
         method: "DELETE",
         crossDomain: true,
@@ -64,6 +64,16 @@ export const blackboardsApiSlice = createApi({
       }),
       invalidatesTags: [{ type: "Blackboards", id: "LIST" }],
     }),
+
+    // enterBlackboard: build.mutation<boolean, string>({
+    //   query: (id: string) => ({
+    //     url: `enterBlackboard/${id}`,
+    //     method: "POST",
+    //     id,
+    //     crossDomain: true,
+    //     responseType: "json",
+    //   }),
+    // }),
   }),
 })
 

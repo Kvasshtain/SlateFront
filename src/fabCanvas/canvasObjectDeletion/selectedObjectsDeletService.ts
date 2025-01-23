@@ -2,7 +2,7 @@ import type { FabObjectWithId } from "../../components/Slate/types"
 
 const deletSelectedActions = (
   canvas: fabric.Canvas,
-  delFunc: (deletedFromCanvasObjectsIds: string[]) => void,
+  delFunc: (deletedFromCanvasObjectsIds: (number | string)[]) => void,
 ) => {
   if (!canvas) return
 
@@ -17,7 +17,10 @@ const deletSelectedActions = (
   }
 }
 
-const deleteObjectsFromCanvasByIds = (canvas: fabric.Canvas, ids: string[]) => {
+const deleteObjectsFromCanvasById = (
+  canvas: fabric.Canvas,
+  id: number | string,
+) => {
   if (!canvas) return
 
   const objects = canvas.getObjects()
@@ -26,17 +29,20 @@ const deleteObjectsFromCanvasByIds = (canvas: fabric.Canvas, ids: string[]) => {
 
   const objLength = objWithId.length
 
-  const idsLength = ids.length
+  //const idsLength = id.length
 
   for (let i = 0; i < objLength; i++) {
-    for (let j = 0; j < idsLength; j++) {
-      if (objWithId[i].id === ids[j]) {
-        canvas.remove(objWithId[i])
-      }
+    //for (let j = 0; j < idsLength; j++) {
+    if (objWithId[i].id === id) {
+      canvas.remove(objWithId[i])
+      //  }
     }
   }
 
   canvas.renderAll()
 }
 
-export { deletSelectedActions, deleteObjectsFromCanvasByIds }
+export {
+  deletSelectedActions,
+  deleteObjectsFromCanvasById as deleteObjectsFromCanvasByIds,
+}

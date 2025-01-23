@@ -3,6 +3,7 @@ import { useNavigate } from "react-router"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import {
   addTextOnCanvas,
+  enterBlackboard,
   requestAllCanvasObjects,
   setDrawingColor,
   setDrawingShapeKind,
@@ -91,7 +92,8 @@ const Blackboard: React.FC = () => {
     }
 
     if (firstRender.current) {
-      dispatch(requestAllCanvasObjects())
+      dispatch(enterBlackboard(state.activeBlackboardId))
+      dispatch(requestAllCanvasObjects(state.activeBlackboardId))
       firstRender.current = false
       return
     }

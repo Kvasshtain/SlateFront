@@ -2,11 +2,11 @@ import type React from "react"
 //import { useGetBlackboardDataQuery } from "../../../../store/BlackboardsApiSlice"
 
 export interface IBlackboardDescriptionBlockProps {
-  id: string
+  id: number
   name: string
   description: string
-  onSelectBlackboard: (blackboardId: string) => void
-  onDeleteBlackboard: (blackboardId: string) => void
+  onSelectBlackboard: (blackboardId: number, blackboardName: string) => void
+  onDeleteBlackboard: (blackboardId: number) => void
 }
 
 const BlackboardDescriptionBlock: React.FC<IBlackboardDescriptionBlockProps> = (
@@ -26,7 +26,7 @@ const BlackboardDescriptionBlock: React.FC<IBlackboardDescriptionBlockProps> = (
   // }
 
   const onGoToBoardClickHandler = () => {
-    onSelectBlackboard(id)
+    onSelectBlackboard(id, name)
   }
 
   const onDeleteClickHandler = () => {

@@ -52,6 +52,7 @@ const UserPanel: React.FC = () => {
   return (
     <div>
       <span>{sessionStorage.getItem(userNameKey)}</span>
+      <span>Blackboard name: {state.activeBlackboardName}</span>
       <span>Connection state: {state.connectionState}</span>
       <button onClick={signOutButtonClickHandler}>Sign out</button>
     </div>

@@ -17,7 +17,7 @@ function ucFirst(str: string) {
   return str[0].toUpperCase() + str.slice(1)
 }
 
-function findById(fabCanvas: fabric.Canvas, id: string) {
+function findById(fabCanvas: fabric.Canvas, id: number) {
   return fabCanvas.getObjects().find((obj: fabric.Object): boolean => {
     let objWithId: FabObjectWithId = obj as FabObjectWithId
 

@@ -14,6 +14,7 @@ import {
   sendCursorTrackingData,
   moveCursorOnCanvas,
   stopConnecting,
+  enterBlackboard,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
 import type {
@@ -75,7 +76,7 @@ const createSignalMiddleware = (): Middleware => {
         store.dispatch(deleteObjectsFromCanvasByIds(payload))
       })
 
-      hubConnection.on("MoveObjectOnCanvas", (payload) => {
+      hubConnection.on("DragObjectOnCanvas", (payload) => {
         store.dispatch(moveObjectOnCanvas(payload))
       })
 
@@ -88,8 +89,22 @@ const createSignalMiddleware = (): Middleware => {
       })
     }
 
+    if (enterBlackboard.match(action)) {
+      const blackboardId: number = action.payload
+
+      hubConnection.invoke("EnterBlackboard", blackboardId).catch(function (
+        err: Error,
+      ) {
+        return console.error(err.toString())
+      })
+    }
+
     if (requestAllCanvasObjects.match(action)) {
-      hubConnection.invoke("GetAllBoardObjects").catch(function (err: Error) {
+      const blackboardId: number = action.payload
+
+      hubConnection.invoke("GetAllBoardObjects", blackboardId).catch(function (
+        err: Error,
+      ) {
         return console.error(err.toString())
       })
     }
@@ -102,6 +117,7 @@ const createSignalMiddleware = (): Middleware => {
           UserName: cursorData.userName,
           Left: cursorData.left,
           Top: cursorData.top,
+          BlackboardId: cursorData.blackboardId,
         })
         .catch(function (err: Error) {
           return console.error(err.toString())
@@ -120,6 +136,7 @@ const createSignalMiddleware = (): Middleware => {
           ScaleX: blackboardObj.scaleX,
           ScaleY: blackboardObj.scaleY,
           Angle: blackboardObj.angle,
+          BlackboardId: blackboardObj.blackboardId,
         })
         .catch(function (err) {
           return console.error(err.toString())
@@ -137,7 +154,7 @@ const createSignalMiddleware = (): Middleware => {
     }
 
     if (sendDeletedFromCanvasObjectsIds.match(action)) {
-      const deletedFromCanvasObjectsIds: string[] = action.payload
+      const deletedFromCanvasObjectsIds: number[] = action.payload
 
       hubConnection
         .invoke("DeleteObjectsByIds", deletedFromCanvasObjectsIds)

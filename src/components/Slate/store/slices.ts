@@ -16,6 +16,7 @@ export const initialState: ISlateState = {
   newUserPassword: null,
 
   activeBlackboardId: null,
+  activeBlackboardName: null,
 
   otherUserCursorData: null,
   mainCanvas: null,
@@ -72,6 +73,10 @@ export const slateSlice = createSlice({
       state.activeBlackboardId = action.payload
     },
 
+    setActiveBlackboardName: (state, action) => {
+      state.activeBlackboardName = action.payload
+    },
+
     setMainCanvas: (state, action) => {
       state.mainCanvas = action.payload
     },
@@ -94,7 +99,9 @@ export const slateSlice = createSlice({
 
     requestAllUsersBlackboard: () => {},
 
-    requestAllCanvasObjects: () => {},
+    enterBlackboard: (state, action) => {},
+
+    requestAllCanvasObjects: (state, action) => {},
 
     setEditMode: (state, action) => {
       state.editMode = action.payload
@@ -187,6 +194,7 @@ export const {
   submitNewUser,
 
   setActiveBlackboardId,
+  setActiveBlackboardName,
 
   startConnecting,
   stopConnecting,
@@ -196,6 +204,7 @@ export const {
   initKeyActions,
   setConnectionState,
   requestAllUsersBlackboard,
+  enterBlackboard,
   requestAllCanvasObjects,
   setEditMode,
   setDrawingShapeKind,

@@ -6,26 +6,28 @@ export interface ICursorData {
   userName: string
   left: number
   top: number
+  blackboardId: number
 }
 
 export interface ICanvasObject {
-  id: string
+  id: number
   data: string
   left: number
   top: number
   scaleX: number
   scaleY: number
   angle: number
+  blackboardId: number
 }
 
 export interface IMovementData {
-  id: string
+  id: number
   left: number
   top: number
 }
 
 export interface IScaleData {
-  id: string
+  id: number
   left: number
   top: number
   scaleX: number
@@ -33,7 +35,7 @@ export interface IScaleData {
 }
 
 export interface IRotationData {
-  id: string
+  id: number
   angle: number
 }
 
@@ -66,6 +68,7 @@ export interface ISlateState {
   newUserPassword: string | null
 
   activeBlackboardId: string | null
+  activeBlackboardName: string | null
 
   mainCanvas: fabric.Canvas | null
   hubConnection: HubConnection | null
