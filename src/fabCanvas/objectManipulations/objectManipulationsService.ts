@@ -14,6 +14,122 @@ import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
 const addNewObjectName = "addNewObject"
 const defaultId = 0
 
+function applyCanvasManipulation(
+  modifiedObject: FabObjectWithId,
+  method: string,
+  position: [
+    left: number | null | undefined,
+    top: number | null | undefined,
+    scaleX: number | null | undefined,
+    scaleY: number | null | undefined,
+  ],
+  modifyObjectHandler: (
+    objectModificationData: IObjectModificationData,
+  ) => void,
+) {
+  if (!modifiedObject) return
+
+  const [left, top, scaleX, scaleY] = position
+
+  if (!left) return
+  if (!top) return
+
+  const id = modifiedObject.get("id")
+  // const scaleX = modifiedObject.get("scaleX")
+  // const scaleY = modifiedObject.get("scaleY")
+  const angle = modifiedObject.get("angle")
+
+  let payload
+
+  switch (method) {
+    case "Drag":
+      payload = {
+        Id: id,
+        Left: left,
+        Top: top,
+      }
+      break
+    case "Scale":
+    case "ScaleX":
+    case "ScaleY":
+      method = "Scale"
+      payload = {
+        Id: id,
+        Left: left,
+        Top: top,
+        ScaleX: scaleX,
+        ScaleY: scaleY,
+      }
+      break
+    case "Rotate":
+      payload = {
+        Id: id,
+        Angle: angle,
+      }
+      break
+    default:
+      return
+  }
+
+  const objectModificationData: IObjectModificationData = {
+    method: method,
+    payload: payload,
+  }
+
+  modifyObjectHandler(objectModificationData)
+}
+
+function getObjectFinalPositionAndScaleInGroup(
+  modifiedObject: FabObjectWithId,
+  activeSelection: fabric.ActiveSelection,
+): [
+  left: number | null | undefined,
+  top: number | null | undefined,
+  scaleX: number | null | undefined,
+  scaleY: number | null | undefined,
+] {
+  if (!modifiedObject) return [null, null, null, null]
+
+  const matrix = activeSelection.calcTransformMatrix()
+
+  let left = modifiedObject.get("left")
+  let top = modifiedObject.get("top")
+
+  if (!left) return [null, null, null, null]
+  if (!top) return [null, null, null, null]
+
+  const finalPosition = fabric.util.transformPoint(
+    new fabric.Point(left, top),
+    matrix,
+  )
+
+  left = finalPosition.x
+  top = finalPosition.y
+
+  const scaleX = CalcDimensionScale(
+    modifiedObject.scaleX,
+    activeSelection.scaleX,
+  )
+  const scaleY = CalcDimensionScale(
+    modifiedObject.scaleY,
+    activeSelection.scaleY,
+  )
+
+  return [left, top, scaleX, scaleY]
+}
+
+function CalcDimensionScale(
+  modifiedObjectScale: number | undefined,
+  activeSelectionScale: number | undefined,
+): number | null {
+  let scale: number | null
+
+  if (!activeSelectionScale || !modifiedObjectScale) scale = null
+  else scale = activeSelectionScale * modifiedObjectScale
+
+  return scale
+}
+
 function initCanvasManipulation(
   canvas: fabric.Canvas,
   blackboardId: number,
@@ -66,55 +182,60 @@ function initCanvasManipulation(
 
     let method = ucFirst(action)
 
+    const activeSelection = evt.target as fabric.ActiveSelection
+
+    if (activeSelection._objects) {
+      const modifiedObjects = activeSelection._objects
+
+      modifiedObjects.forEach((object) => {
+        const modifiedObject = object as FabObjectWithId
+
+        const finalPositionAndScale = getObjectFinalPositionAndScaleInGroup(
+          modifiedObject,
+          activeSelection,
+        )
+
+        // if (!modifiedObject) return
+
+        // const matrix = activeSelection.calcTransformMatrix()
+
+        // let left = modifiedObject.get("left")
+        // let top = modifiedObject.get("top")
+
+        // if (!left) return
+        // if (!top) return
+
+        // const finalPosition = fabric.util.transformPoint(new fabric.Point( left, top ), matrix)
+
+        // left = finalPosition.x
+        // top = finalPosition.y
+
+        applyCanvasManipulation(
+          modifiedObject,
+          method,
+          finalPositionAndScale,
+          modifyObjectHandler,
+        )
+      })
+
+      return
+    }
+
     const modifiedObject = evt.target as FabObjectWithId
 
     if (!modifiedObject) return
 
-    const id = modifiedObject.get("id")
     const left = modifiedObject.get("left")
     const top = modifiedObject.get("top")
     const scaleX = modifiedObject.get("scaleX")
     const scaleY = modifiedObject.get("scaleY")
-    const angle = modifiedObject.get("angle")
 
-    let payload
-
-    switch (method) {
-      case "Drag":
-        payload = {
-          Id: id,
-          Left: left,
-          Top: top,
-        }
-        break
-      case "Scale":
-      case "ScaleX":
-      case "ScaleY":
-        method = "Scale"
-        payload = {
-          Id: id,
-          Left: left,
-          Top: top,
-          ScaleX: scaleX,
-          ScaleY: scaleY,
-        }
-        break
-      case "Rotate":
-        payload = {
-          Id: id,
-          Angle: angle,
-        }
-        break
-      default:
-        return
-    }
-
-    const objectModificationData: IObjectModificationData = {
-      method: method,
-      payload: payload,
-    }
-
-    modifyObjectHandler(objectModificationData)
+    applyCanvasManipulation(
+      modifiedObject,
+      method,
+      [left, top, scaleX, scaleY],
+      modifyObjectHandler,
+    )
   })
 }
 
