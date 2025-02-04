@@ -8,6 +8,7 @@ import {
   moveObjectOnCanvas as moveObjectOnCanvasAct,
   scaleObjectOnCanvas as scaleObjectOnCanvasAct,
   rotateObjectOnCanvas as rotateObjectOnCanvasAct,
+  rotateAndMoveObjectOnCanvas as rotateAndMoveObjectOnCanvasAct,
   sendCanvasObjectModification,
   addPictureOnCanvas as addPictureOnCanvasAct,
   makeFromDocumentBodyDropImageZone as makeFromDocumentBodyDropImageZoneAct,
@@ -47,6 +48,7 @@ import {
   initCanvasManipulation,
   moveObjectOnCanvas,
   rotateObjectOnCanvas,
+  rotateAndMoveObjectOnCanvas,
   scaleObjectOnCanvas,
 } from "./objectManipulations/objectManipulationsService"
 import { addPictureOnCanvas } from "./picture/pictureService"
@@ -184,6 +186,13 @@ const fabCanvasMiddleware = (): Middleware => {
         return
       }
 
+      const canvasFreeDrawingBrush = canvas.freeDrawingBrush
+
+      if (!canvasFreeDrawingBrush) {
+        next(action)
+        return
+      }
+
       canvas.isDrawingMode = false
 
       turnOffShapeDrawingMode()
@@ -196,7 +205,7 @@ const fabCanvasMiddleware = (): Middleware => {
           break
         case EditMode.LineDrawing:
           canvas.isDrawingMode = true
-          canvas.freeDrawingBrush.color = color
+          canvasFreeDrawingBrush.color = color
           break
         case EditMode.Text:
           turnOnTextEditMode(
@@ -256,6 +265,13 @@ const fabCanvasMiddleware = (): Middleware => {
 
     if (rotateObjectOnCanvasAct.match(action)) {
       rotateObjectOnCanvas(
+        store.getState().playground.mainCanvas,
+        action.payload,
+      )
+    }
+
+    if (rotateAndMoveObjectOnCanvasAct.match(action)) {
+      rotateAndMoveObjectOnCanvas(
         store.getState().playground.mainCanvas,
         action.payload,
       )

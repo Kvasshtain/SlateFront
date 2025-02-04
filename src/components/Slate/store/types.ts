@@ -39,6 +39,13 @@ export interface IRotationData {
   angle: number
 }
 
+export interface IRotationAndMovementData {
+  id: number
+  left: number
+  top: number
+  angle: number
+}
+
 export interface IObjectModificationData {
   method: string
   payload: any

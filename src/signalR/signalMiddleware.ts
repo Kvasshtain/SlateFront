@@ -15,6 +15,7 @@ import {
   moveCursorOnCanvas,
   stopConnecting,
   enterBlackboard,
+  rotateAndMoveObjectOnCanvas,
 } from "../components/Slate/store/slices"
 import type { HubConnection } from "redux-signalr"
 import type {
@@ -86,6 +87,10 @@ const createSignalMiddleware = (): Middleware => {
 
       hubConnection.on("RotateObjectOnCanvas", (payload) => {
         store.dispatch(rotateObjectOnCanvas(payload))
+      })
+
+      hubConnection.on("RotateAndDragObjectOnCanvas", (payload) => {
+        store.dispatch(rotateAndMoveObjectOnCanvas(payload))
       })
     }
 
