@@ -5,7 +5,7 @@ import type {
   ICanvasObject,
   IMovementData,
   IObjectModificationData,
-  IRotationAndMovementData,
+  IObjectPropertyData,
   IRotationData,
   IScaleData,
 } from "../../components/Slate/store/types"
@@ -24,6 +24,8 @@ function applyCanvasManipulation(
         top: number | undefined,
         scaleX: number | undefined,
         scaleY: number | undefined,
+        skewX: number | undefined,
+        skewY: number | undefined,
         angle: number | undefined,
       ]
     | null,
@@ -34,7 +36,7 @@ function applyCanvasManipulation(
   if (!modifiedObject) return
   if (!objProps) return
 
-  const [left, top, scaleX, scaleY, angle] = objProps
+  const [left, top, scaleX, scaleY, skewX, skewY, angle] = objProps
 
   const id = modifiedObject.get("id")
 
@@ -58,6 +60,8 @@ function applyCanvasManipulation(
         Top: top,
         ScaleX: scaleX,
         ScaleY: scaleY,
+        SkewX: skewX,
+        SkewY: skewY,
       }
       break
     case "Rotate":
@@ -66,12 +70,16 @@ function applyCanvasManipulation(
         Angle: angle,
       }
       break
-    case "RotateAndDrag":
+    case "Change":
       payload = {
         Id: id,
         Left: left,
         Top: top,
         Angle: angle,
+        ScaleX: scaleX,
+        ScaleY: scaleY,
+        SkewX: skewX,
+        SkewY: skewY,
       }
       break
     default:
@@ -88,70 +96,30 @@ function applyCanvasManipulation(
 
 function getObjectFinalPropertiesInGroup(
   modifiedObject: FabObjectWithId,
-  activeSelection: fabric.ActiveSelection,
-):
-  | [left: number, top: number, scaleX: number, scaleY: number, angle: number]
-  | null {
-  if (!modifiedObject) return null
+): [
+  left: number | undefined,
+  top: number | undefined,
+  scaleX: number | undefined,
+  scaleY: number | undefined,
+  skewX: number | undefined,
+  skewY: number | undefined,
+  angle: number | undefined,
+] {
+  const canvas = modifiedObject.canvas
 
-  const modifiedObjectLeft = modifiedObject.left
-  const modifiedObjectTop = modifiedObject.top
+  const id = parseInt(modifiedObject.id.toString(), 10)
 
-  if (modifiedObjectLeft === undefined || modifiedObjectTop === undefined)
-    return null
+  let obj = canvas ? findById(canvas, id) : null
 
-  const activeSelectionAngle = activeSelection.angle
-  const modifiedObjectAngle = modifiedObject.angle
-
-  if (activeSelectionAngle === undefined || modifiedObjectAngle === undefined)
-    return null
-
-  const modifiedObjectScaleX = modifiedObject.scaleX
-  const activeSelectionScaleX = activeSelection.scaleX
-
-  if (modifiedObjectScaleX === undefined || activeSelectionScaleX === undefined)
-    return null
-
-  const modifiedObjectScaleY = modifiedObject.scaleY
-  const activeSelectionScaleY = activeSelection.scaleY
-
-  if (modifiedObjectScaleY === undefined || activeSelectionScaleY === undefined)
-    return null
-
-  const matrix = activeSelection.calcTransformMatrix()
-
-  const finalPosition = fabric.util.transformPoint(
-    new fabric.Point(modifiedObjectLeft, modifiedObjectTop),
-    matrix,
-  )
-
-  const scaleX = calcDimensionScale(modifiedObjectScaleX, activeSelectionScaleX)
-  const scaleY = calcDimensionScale(modifiedObjectScaleY, activeSelectionScaleY)
-
-  const angle = modifiedObjectAngle + activeSelectionAngle
-
-  // const x = modifiedObjectLeft
-  // const y = modifiedObjectTop
-
-  // const newX = x * Math.cos(degToRad(activeSelectionAngle)) - y * Math.sin(degToRad(activeSelectionAngle))
-  // const newY = x * Math.sin(degToRad(activeSelectionAngle)) + y * Math.cos(degToRad(activeSelectionAngle))
-
-  // const newLeft = activeSelection.getCenterPoint().x + newX
-  // const newTop = activeSelection.getCenterPoint().y + newY
-
-  //return [newLeft, newTop, scaleX, scaleY, angle]
-  return [finalPosition.x, finalPosition.y, scaleX, scaleY, angle]
-}
-
-// const degToRad = (deg: number): number => {
-//   return deg * (Math.PI / 180.0)
-// }
-
-const calcDimensionScale = (
-  modifiedObjectScale: number,
-  activeSelectionScale: number,
-): number => {
-  return activeSelectionScale * modifiedObjectScale
+  return [
+    obj?.left,
+    obj?.top,
+    obj?.scaleX,
+    obj?.scaleY,
+    obj?.skewX,
+    obj?.skewY,
+    obj?.angle,
+  ]
 }
 
 function initCanvasManipulation(
@@ -166,7 +134,6 @@ function initCanvasManipulation(
   if (!canvas) return
 
   const addNewObjectHandler = (e: any) => {
-    // в старой версии fabric js было fabric.IEvent<MouseEvent>
     if (canvasState.isSendingBlocked) return
 
     let target = e.target as FabObjectWithId
@@ -178,12 +145,14 @@ function initCanvasManipulation(
     canvas.remove(target)
 
     const blackboardObj: ICanvasObject = {
-      id: defaultId, //uuidv4(),
+      id: defaultId,
       data: JSON.stringify(target),
       left: target.left ?? 0,
       top: target.top ?? 0,
       scaleX: target.scaleX ?? 0,
       scaleY: target.scaleY ?? 0,
+      skewX: target.skewX ?? 0,
+      skewY: target.skewY ?? 0,
       angle: target.angle ?? 0,
       blackboardId: blackboardId,
     }
@@ -207,28 +176,31 @@ function initCanvasManipulation(
 
     let method = ucFirst(action)
 
-    const activeSelection = evt.target as fabric.ActiveSelection
+    let activeSelection = evt.target as fabric.ActiveSelection
 
     if (activeSelection._objects) {
       const modifiedObjects = activeSelection._objects
 
+      const objects = activeSelection.getObjects()
+      canvas.discardActiveObject().renderAll()
+
       modifiedObjects.forEach((object) => {
         const modifiedObject = object as FabObjectWithId
 
-        const finalPositionAndScale = getObjectFinalPropertiesInGroup(
-          modifiedObject,
-          activeSelection,
-        )
-
-        method = method === "Rotate" ? "RotateAndDrag" : method
+        const finalObjectProperties =
+          getObjectFinalPropertiesInGroup(modifiedObject)
 
         applyCanvasManipulation(
           modifiedObject,
-          method,
-          finalPositionAndScale,
+          "Change",
+          finalObjectProperties,
           modifyObjectHandler,
         )
       })
+
+      activeSelection = new fabric.ActiveSelection(objects, { canvas: canvas })
+      canvas.setActiveObject(activeSelection)
+      canvas.requestRenderAll()
 
       return
     }
@@ -236,10 +208,6 @@ function initCanvasManipulation(
     const modifiedObject = evt.target as FabObjectWithId
 
     if (!modifiedObject) return
-    const left = modifiedObject.get("left")
-    const top = modifiedObject.get("top")
-    const scaleX = modifiedObject.get("scaleX")
-    const scaleY = modifiedObject.get("scaleY")
 
     applyCanvasManipulation(
       modifiedObject,
@@ -249,6 +217,8 @@ function initCanvasManipulation(
         modifiedObject.top,
         modifiedObject.scaleX,
         modifiedObject.scaleY,
+        modifiedObject.skewX,
+        modifiedObject.skewY,
         modifiedObject.angle,
       ],
       modifyObjectHandler,
@@ -322,6 +292,8 @@ const scaleObjectOnCanvas = (canvas: fabric.Canvas, scaleData: IScaleData) => {
     top: scaleData.top,
     scaleX: scaleData.scaleX,
     scaleY: scaleData.scaleY,
+    skewX: scaleData.skewX,
+    skewY: scaleData.skewY,
   })
 
   canvas.renderAll()
@@ -340,32 +312,31 @@ const rotateObjectOnCanvas = (
 
   obj.rotate(rotationData.angle)
 
-  // obj.set({
-  //   angle: rotationData.angle,
-  // })
-
   canvas.renderAll()
 }
 
-const rotateAndMoveObjectOnCanvas = (
+const changeObjectOnCanvas = (
   canvas: fabric.Canvas,
-  rotationAndMovementData: IRotationAndMovementData,
+  objectPropertyData: IObjectPropertyData,
 ) => {
   if (!canvas) return
-  if (!rotationAndMovementData) return
+  if (!objectPropertyData) return
 
-  let obj = findById(canvas, rotationAndMovementData.id)
+  let obj = findById(canvas, objectPropertyData.id)
 
   if (!obj) return
 
   obj.set({
-    left: rotationAndMovementData.left,
-    top: rotationAndMovementData.top,
+    angle: objectPropertyData.angle,
+    left: objectPropertyData.left,
+    top: objectPropertyData.top,
+    scaleX: objectPropertyData.scaleX,
+    scaleY: objectPropertyData.scaleY,
+    skewX: objectPropertyData.skewX,
+    skewY: objectPropertyData.skewY,
   })
 
-  obj.set({
-    angle: rotationAndMovementData.angle,
-  })
+  obj.set({})
 
   canvas.renderAll()
 }
@@ -376,5 +347,5 @@ export {
   moveObjectOnCanvas,
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
-  rotateAndMoveObjectOnCanvas,
+  changeObjectOnCanvas,
 }

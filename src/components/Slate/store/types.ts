@@ -16,6 +16,8 @@ export interface ICanvasObject {
   top: number
   scaleX: number
   scaleY: number
+  skewX: number
+  skewY: number
   angle: number
   blackboardId: number
 }
@@ -32,6 +34,8 @@ export interface IScaleData {
   top: number
   scaleX: number
   scaleY: number
+  skewX: number
+  skewY: number
 }
 
 export interface IRotationData {
@@ -39,11 +43,15 @@ export interface IRotationData {
   angle: number
 }
 
-export interface IRotationAndMovementData {
+export interface IObjectPropertyData {
   id: number
   left: number
   top: number
   angle: number
+  scaleX: number
+  scaleY: number
+  skewX: number
+  skewY: number
 }
 
 export interface IObjectModificationData {

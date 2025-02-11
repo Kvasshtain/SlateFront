@@ -8,7 +8,7 @@ import {
   moveObjectOnCanvas as moveObjectOnCanvasAct,
   scaleObjectOnCanvas as scaleObjectOnCanvasAct,
   rotateObjectOnCanvas as rotateObjectOnCanvasAct,
-  rotateAndMoveObjectOnCanvas as rotateAndMoveObjectOnCanvasAct,
+  changeObjectOnCanvas as changeObjectOnCanvasAct,
   sendCanvasObjectModification,
   addPictureOnCanvas as addPictureOnCanvasAct,
   makeFromDocumentBodyDropImageZone as makeFromDocumentBodyDropImageZoneAct,
@@ -48,7 +48,7 @@ import {
   initCanvasManipulation,
   moveObjectOnCanvas,
   rotateObjectOnCanvas,
-  rotateAndMoveObjectOnCanvas,
+  changeObjectOnCanvas,
   scaleObjectOnCanvas,
 } from "./objectManipulations/objectManipulationsService"
 import { addPictureOnCanvas } from "./picture/pictureService"
@@ -270,8 +270,8 @@ const fabCanvasMiddleware = (): Middleware => {
       )
     }
 
-    if (rotateAndMoveObjectOnCanvasAct.match(action)) {
-      rotateAndMoveObjectOnCanvas(
+    if (changeObjectOnCanvasAct.match(action)) {
+      changeObjectOnCanvas(
         store.getState().playground.mainCanvas,
         action.payload,
       )

@@ -144,7 +144,7 @@ export const slateSlice = createSlice({
       state.currentObjectRotationData = action.payload
     },
 
-    rotateAndMoveObjectOnCanvas: (state, action) => {
+    changeObjectOnCanvas: (state, action) => {
       state.currentObjectRotationData = action.payload //исправить сохранение в сторе!!!
     },
     //===================================================
@@ -221,7 +221,7 @@ export const {
   moveObjectOnCanvas,
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
-  rotateAndMoveObjectOnCanvas,
+  changeObjectOnCanvas,
 
   sendCursorTrackingData,
   sendCanvasObject,
