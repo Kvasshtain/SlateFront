@@ -3,6 +3,9 @@ import {
   enterBlackboard,
   setActiveBlackboardId,
   setActiveBlackboardName,
+  setHubConnection,
+  setIsUserAuthenticated,
+  stopConnecting,
 } from "../../store/slices"
 import { useNavigate } from "react-router"
 
@@ -24,12 +27,16 @@ import BlackboardDescriptionBlock from "./components/BlackboardDescriptionBlock/
 import NewBlackboardForm from "./components/NewBlackboardForm"
 import Blackboard from "../Blackboard"
 
+const tokenKey = "accessToken" //Вынеси в отдельный файл!!!
 const userIdKey = "userId"
-const tokenKey = "accessToken"
+const userNameKey = "userName"
+const userEmailKey = "userEmail"
 
 const MainWindow: React.FC = () => {
   const [isRenderNewBlackboardForm, setIsRenderNewBlackboardForm] =
     useState(false)
+
+  const state: ISlateState = useAppSelector((state) => state.playground)
 
   const navigate = useNavigate()
 
@@ -91,6 +98,30 @@ const MainWindow: React.FC = () => {
     navigate("/blackboard")
   }
 
+  const signOutButtonClickHandler = async () => {
+    const userId = sessionStorage.getItem(userIdKey)
+
+    if (!userId) return
+
+    //await sendLogoutData({userId: +userId}).unwrap().catch((error) => {console.log(error.status)})
+    //dispatch(setDrawingShapeKind(DrawingShapeKind.Triangle))
+
+    sessionStorage.removeItem(tokenKey)
+
+    sessionStorage.removeItem(userIdKey)
+    sessionStorage.removeItem(userNameKey)
+    sessionStorage.removeItem(userEmailKey)
+
+    dispatch(setIsUserAuthenticated(false))
+
+    state.hubConnection?.stop()
+
+    dispatch(stopConnecting())
+    dispatch(setHubConnection(null))
+
+    navigate("/login")
+  }
+
   const renderNewBlackboardForm = () => {
     if (isRenderNewBlackboardForm) {
       return (
@@ -126,6 +157,7 @@ const MainWindow: React.FC = () => {
         />
       ))}
       <button onClick={newBlackboardBtnClickHandler}>New blackboard</button>
+      <button onClick={signOutButtonClickHandler}>Sign out</button>
     </div>
   )
 }
