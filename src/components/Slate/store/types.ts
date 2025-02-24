@@ -112,6 +112,7 @@ export interface ISlateState {
 export enum EditMode {
   None,
   Shape,
+  Svg,
   Text,
   LineDrawing,
 }

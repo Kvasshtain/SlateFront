@@ -176,9 +176,13 @@ function initCanvasManipulation(
 
     let method = ucFirst(action)
 
+    const modifiedObject = evt.target as FabObjectWithId
     let activeSelection = evt.target as fabric.ActiveSelection
 
-    if (activeSelection._objects) {
+    if (activeSelection._objects && modifiedObject.id === undefined) {
+      // Проверка "modifiedObject.id === undefined" добавлена так как объект может быть не выделенной пользователем группой объектов,
+      // а объектом-группой (например svg) изначально таким созданный. В этом случае группа имеет свой id и рассматривается
+      // как отдельный цельный объект
       const modifiedObjects = activeSelection._objects
 
       const objects = activeSelection.getObjects()
@@ -204,8 +208,6 @@ function initCanvasManipulation(
 
       return
     }
-
-    const modifiedObject = evt.target as FabObjectWithId
 
     if (!modifiedObject) return
 

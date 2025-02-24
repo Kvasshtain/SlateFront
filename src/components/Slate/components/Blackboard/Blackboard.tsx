@@ -143,6 +143,10 @@ const Blackboard: React.FC = () => {
     dispatch(setEditMode(EditMode.Shape))
   }
 
+  const addSvgButtonClickHandler = () => {
+    dispatch(setEditMode(EditMode.Svg))
+  }
+
   //Вынеси в отдельный файл
   type Item = {
     label: string
@@ -180,6 +184,7 @@ const Blackboard: React.FC = () => {
         <button onClick={addRectButtonClickHandler}>Add rectangle</button>
         <button onClick={addCircleButtonClickHandler}>Add ellipse</button>
         <button onClick={addTriangleButtonClickHandler}>Add triangle</button>
+        <button onClick={addSvgButtonClickHandler}>Add svg flag</button>
         <UserPanel />
       </div>
       {state.userInputFieldCoordinates?.x &&
