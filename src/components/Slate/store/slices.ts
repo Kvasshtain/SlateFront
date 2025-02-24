@@ -23,7 +23,8 @@ export const initialState: ISlateState = {
   hubConnection: null,
   editMode: EditMode.None,
   drawingShapeKind: DrawingShapeKind.None,
-  currentDrawingColor: "Black",
+  currentBorderColor: "Black",
+  currentMainColor: "Black",
   currentCanvasZoom: 1,
 
   currentAddedCanvasObject: null,
@@ -111,8 +112,12 @@ export const slateSlice = createSlice({
       state.drawingShapeKind = action.payload
     },
 
-    setDrawingColor: (state, action) => {
-      state.currentDrawingColor = action.payload
+    setBorderColor: (state, action) => {
+      state.currentBorderColor = action.payload
+    },
+
+    setMainColor: (state, action) => {
+      state.currentMainColor = action.payload
     },
 
     setCanvasZoom: (state, action) => {
@@ -212,7 +217,8 @@ export const {
   requestAllCanvasObjects,
   setEditMode,
   setDrawingShapeKind,
-  setDrawingColor,
+  setBorderColor,
+  setMainColor,
   setCanvasZoom,
 
   moveCursorOnCanvas,

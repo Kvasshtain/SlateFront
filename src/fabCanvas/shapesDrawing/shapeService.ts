@@ -100,17 +100,6 @@ const createShape = (
       return new fabric.Triangle({
         ...shapeProps,
       })
-    // case DrawingShapeKind.Triangle:
-    //   if (!ukFlagObj)
-    //     return new fabric.Rect({
-    //       ...shapeProps,
-    //     })
-
-    //   // ukFlagObj.setOptions({
-    //   //   ...shapeProps,
-    //   // })
-
-    //   return ukFlagObj
     case DrawingShapeKind.None:
       return new fabric.Text(
         "ERROR: drawingShapeKind = DrawingShapeKind.None!",
@@ -123,7 +112,8 @@ function turnOnShapeDrawingMode(
   canvas: fabric.Canvas,
   drawingShapeKind: DrawingShapeKind,
   canvasState: ICanvasState,
-  color: string,
+  borderColor: string,
+  mainColor: string,
 ) {
   let shape: fabric.Object
   let dragging: boolean
@@ -144,9 +134,9 @@ function turnOnShapeDrawingMode(
 
   const options = {
     shapeProps: {
-      stroke: color,
+      stroke: borderColor,
       strokeWidth: 1,
-      fill: "",
+      fill: mainColor,
     },
   }
 

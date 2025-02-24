@@ -217,7 +217,9 @@ const Dropdown = <T extends unknown>(
   )
 }
 
-const Root = styled.div``
+const Root = styled.div`
+  display: inline-block;
+`
 
 const Control = styled.button`
   width: 100%;

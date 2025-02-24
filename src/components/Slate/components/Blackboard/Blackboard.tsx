@@ -5,10 +5,11 @@ import {
   addTextOnCanvas,
   enterBlackboard,
   requestAllCanvasObjects,
-  setDrawingColor,
+  setBorderColor,
   setDrawingShapeKind,
   setEditMode,
   setHubConnection,
+  setMainColor,
   startConnecting,
 } from "../../store/slices"
 //import type { IScreenCoordinates } from "../../store/types"
@@ -50,7 +51,7 @@ const Blackboard: React.FC = () => {
     // перенеси в state приложения и сделай настраиваемым и изменяемым
     fontSize: 16,
     fontWeight: "normal",
-    color: state.currentDrawingColor,
+    color: state.currentBorderColor,
     textDecoration: "rgba(0,0,0,0) 0 0 0px",
     shadow: "rgba(0,0,0,0) 0px 0px 0px",
     fontStyle: "normal",
@@ -112,8 +113,12 @@ const Blackboard: React.FC = () => {
     )
   }
 
-  const changeColorHandler = (item: Item) => {
-    dispatch(setDrawingColor(item.label))
+  const changeBorderColorHandler = (item: Item) => {
+    dispatch(setBorderColor(item.label))
+  }
+
+  const changeMainColorHandler = (item: Item) => {
+    dispatch(setMainColor(item.label))
   }
 
   const addTextButtonClickHandler = () => {
@@ -160,6 +165,7 @@ const Blackboard: React.FC = () => {
     { label: "Blue", value: 3 },
     { label: "Yellow", value: 4 },
     { label: "Black", value: 5 },
+    { label: "White", value: 0 },
   ]
   //Вынеси в отдельный файл
 
@@ -167,10 +173,22 @@ const Blackboard: React.FC = () => {
     <React.Fragment>
       <div style={toolPanelStyle}>
         <Dropdown<Item>
-          label="Choose color"
+          label="Choose border color"
           behaviour={Behaviour.SINGLE}
           value={items[0]}
-          onChange={changeColorHandler}
+          onChange={changeBorderColorHandler}
+        >
+          {items.map((item) => (
+            <MenuItem key={item.value} value={item}>
+              {item.label}
+            </MenuItem>
+          ))}
+        </Dropdown>
+        <Dropdown<Item>
+          label="Choose main color"
+          behaviour={Behaviour.SINGLE}
+          value={items[0]}
+          onChange={changeMainColorHandler}
         >
           {items.map((item) => (
             <MenuItem key={item.value} value={item}>

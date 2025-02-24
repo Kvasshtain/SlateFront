@@ -89,7 +89,8 @@ export interface ISlateState {
   hubConnection: HubConnection | null
   editMode: EditMode
   drawingShapeKind: DrawingShapeKind
-  currentDrawingColor: string
+  currentBorderColor: string
+  currentMainColor: string
   currentCanvasZoom: number
 
   otherUserCursorData: ICursorData | null
