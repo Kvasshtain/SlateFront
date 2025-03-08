@@ -1,6 +1,7 @@
 import type { Property } from "csstype"
 import type { fabric } from "fabric"
 import type { HubConnection } from "redux-signalr"
+import type { FabObjectWithId } from "../types"
 
 export interface ICursorData {
   userName: string
@@ -61,13 +62,13 @@ export interface IObjectModificationData {
 
 export interface IBoardText {
   text: string | null
-  coordinates: IScreenCoordinates | null
+  coordinates: ICoordinates | null
   style: IFontProperties | null
 }
 
 export interface IBoardPicture {
   file: File | null
-  coordinates: IScreenCoordinates | null
+  coordinates: ICoordinates | null
 }
 
 export interface ISlateState {
@@ -104,8 +105,12 @@ export interface ISlateState {
   deletedFromCanvasObjectsIds: string[] | null
   addedBoardText: IBoardText | null
   addedBoardPicture: IBoardPicture | null
-  canvasClickCoordinates: IScreenCoordinates | null
-  userInputFieldCoordinates: IScreenCoordinates | null
+  canvasRightClickCoordinates: ICoordinates | null
+  screenRightClickCoordinates: ICoordinates | null
+  canvasTextCoordinates: ICoordinates | null
+  userTextInputFieldCoordinates: ICoordinates | null
+  canvasClickedObject: FabObjectWithId | null | undefined
+  rightButtonClickFlag: boolean
   presetText: string
   editedTextId: string | null
 }
@@ -125,7 +130,7 @@ export enum DrawingShapeKind {
   Triangle,
 }
 
-export interface IScreenCoordinates {
+export interface ICoordinates {
   x: number | undefined
   y: number | undefined
 }

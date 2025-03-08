@@ -52,7 +52,6 @@ function Slate() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    //!!!!!!!!!!!!!Вернуть!!!!!!!!!
     if (!firstRender.current) return
 
     firstRender.current = false
@@ -86,7 +85,6 @@ function Slate() {
   // )
 
   return (
-    //!!!!!!!!!!!!!Вернуть!!!!!!!!!
     <>
       <Routes>
         <Route path="/login" element={<AuthAndRegWindow />} />
@@ -94,7 +92,7 @@ function Slate() {
         <Route
           path="/blackboard"
           element={
-            <div>
+            <div onContextMenu={(e) => e.preventDefault()}>
               <React.Fragment>
                 <FabJSCanvas />
                 <Blackboard />

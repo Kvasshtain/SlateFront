@@ -3,7 +3,7 @@ import {
   startConnecting,
   setConnectionState,
   addObjectOnCanvas,
-  deleteObjectsFromCanvasByIds,
+  deleteObjectFromCanvasById,
   requestAllCanvasObjects,
   sendCanvasObject,
   scaleObjectOnCanvas,
@@ -74,7 +74,7 @@ const createSignalMiddleware = (): Middleware => {
       })
 
       hubConnection.on("DeleteObjectsOnCanvas", (payload) => {
-        store.dispatch(deleteObjectsFromCanvasByIds(payload))
+        store.dispatch(deleteObjectFromCanvasById(payload))
       })
 
       hubConnection.on("DragObjectOnCanvas", (payload) => {

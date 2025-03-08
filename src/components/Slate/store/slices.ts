@@ -37,8 +37,12 @@ export const initialState: ISlateState = {
   deletedFromCanvasObjectsIds: null,
   addedBoardText: null,
   addedBoardPicture: null,
-  canvasClickCoordinates: null,
-  userInputFieldCoordinates: null,
+  canvasRightClickCoordinates: null,
+  screenRightClickCoordinates: null,
+  canvasTextCoordinates: null,
+  userTextInputFieldCoordinates: null,
+  canvasClickedObject: null,
+  rightButtonClickFlag: false,
   presetText: "",
   editedTextId: null,
 }
@@ -133,7 +137,7 @@ export const slateSlice = createSlice({
       state.currentAddedCanvasObject = action.payload
     },
 
-    deleteObjectsFromCanvasByIds: (state, action) => {
+    deleteObjectFromCanvasById: (state, action) => {
       state.currentDeletedCanvasObjectsIds = action.payload
     },
 
@@ -176,16 +180,34 @@ export const slateSlice = createSlice({
       state.addedBoardPicture = action.payload
     },
 
-    setCanvasClickCoordinates: (state, action) => {
-      state.canvasClickCoordinates = action.payload
+    setCanvasTextCoordinates: (state, action) => {
+      state.canvasTextCoordinates = action.payload
     },
 
-    setUserInputFieldCoordinates: (state, action) => {
-      state.userInputFieldCoordinates = action.payload
+    setTextInputFieldCoordinates: (state, action) => {
+      state.userTextInputFieldCoordinates = action.payload
     },
+
+    setCanvasRightClickCoordinates: (state, action) => {
+      state.canvasRightClickCoordinates = action.payload
+    },
+
+    setScreenRightClickCoordinates: (state, action) => {
+      state.screenRightClickCoordinates = action.payload
+    },
+
+    setCanvasClickedObject: (state, action) => {
+      state.canvasClickedObject = action.payload
+    },
+
+    setRightButtonClickFlag: (state, action) => {
+      state.rightButtonClickFlag = action.payload
+    },
+
     setPresetText: (state, action) => {
       state.presetText = action.payload
     },
+
     setEditedTextId: (state, action) => {
       state.editedTextId = action.payload
     },
@@ -223,7 +245,7 @@ export const {
 
   moveCursorOnCanvas,
   addObjectOnCanvas,
-  deleteObjectsFromCanvasByIds,
+  deleteObjectFromCanvasById,
   moveObjectOnCanvas,
   scaleObjectOnCanvas,
   rotateObjectOnCanvas,
@@ -236,8 +258,12 @@ export const {
 
   addTextOnCanvas,
   addPictureOnCanvas,
-  setCanvasClickCoordinates,
-  setUserInputFieldCoordinates,
+  setCanvasTextCoordinates,
+  setTextInputFieldCoordinates,
+  setCanvasRightClickCoordinates,
+  setScreenRightClickCoordinates,
+  setCanvasClickedObject,
+  setRightButtonClickFlag,
   setPresetText,
   setEditedTextId,
 } = slateSlice.actions

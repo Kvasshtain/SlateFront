@@ -1,6 +1,6 @@
 import type { FabObjectWithId } from "../components/Slate/types"
 import { fabric } from "fabric"
-import type { IScreenCoordinates } from "../components/Slate/store/types"
+import type { ICoordinates } from "../components/Slate/store/types"
 
 function uuidv4(): string {
   return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (c: string) =>
@@ -50,10 +50,10 @@ const xIndex = 4
 const yIndex = 5
 
 function ConvertPointIntoCanvasCoordinates(
-  p: IScreenCoordinates,
+  p: ICoordinates,
   zoom: number,
   canvas: fabric.Canvas,
-): IScreenCoordinates {
+): ICoordinates {
   if (!canvas.viewportTransform) return { x: 0, y: 0 }
   if (!p.x || !p.y) return { x: 0, y: 0 }
 
@@ -68,10 +68,10 @@ function ConvertPointIntoCanvasCoordinates(
 }
 
 function ConvertPointIntoScreenCoordinates(
-  p: IScreenCoordinates,
+  p: ICoordinates,
   zoom: number,
   canvas: fabric.Canvas,
-): IScreenCoordinates {
+): ICoordinates {
   if (!canvas.viewportTransform) return { x: 0, y: 0 }
   if (!p.x || !p.y) return { x: 0, y: 0 }
 

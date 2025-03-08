@@ -1,11 +1,11 @@
 import { fabric } from "fabric"
 import type {
   ICursorData,
-  IScreenCoordinates,
+  ICoordinates,
 } from "../../components/Slate/store/types"
 import { ConvertPointIntoCanvasCoordinates } from "../canvas-utils"
 import { FabObjectWithId } from "../../components/Slate/types"
-import { deleteObjectsFromCanvasByIds } from "../canvasObjectDeletion/selectedObjectsDeletService"
+import { deleteObjectFromCanvasById } from "../canvasObjectDeletion/selectedObjectsDeletService"
 import { tryAddCanvasHandler } from "../canvasEvents/canvasEventsService"
 
 const cursorTrackingName = "CursorTracking"
@@ -13,7 +13,7 @@ const cursorMarker = "CursorMarker"
 
 function CreateCursorTrackingMarkerShape(
   uaerName: string,
-  canvasCursorPoint: IScreenCoordinates,
+  canvasCursorPoint: ICoordinates,
 ) {
   var cursorLabel = new fabric.Text(uaerName, {
     left: canvasCursorPoint.x,
@@ -80,7 +80,7 @@ const moveOtherUserCursor = (
   if (!canvas) return
   if (!cursorData) return
 
-  deleteObjectsFromCanvasByIds(canvas, cursorMarker)
+  deleteObjectFromCanvasById(canvas, cursorMarker)
   canvas.add(
     CreateCursorTrackingMarkerShape(cursorData.userName, {
       x: cursorData.left,
