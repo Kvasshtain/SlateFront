@@ -1,5 +1,6 @@
 // import styles from "./FabJSCanvas.module.css"
 
+import type { MouseEventHandler } from "react"
 import React from "react"
 
 import { useEffect, useRef } from "react"
@@ -23,6 +24,10 @@ const FabJSCanvas: React.FC = () => {
       height: window.innerHeight,
     })
 
+    canvas.fireRightClick = true
+    canvas.fireMiddleClick = true
+    canvas.stopContextMenu = true
+
     dispatch(setMainCanvas(canvas))
 
     return () => {
@@ -32,6 +37,11 @@ const FabJSCanvas: React.FC = () => {
     }
   }, [dispatch])
 
+  // const onClickHandler: MouseEventHandler<HTMLCanvasElement> = (e: React.MouseEvent<HTMLElement>) => {
+  //   e.preventDefault()
+  // }
+
+  // return <canvas ref={canvasRef} onClick={onClickHandler}/>
   return <canvas ref={canvasRef} />
 }
 

@@ -4,7 +4,7 @@ import {
   sendCanvasObject,
   addTextOnCanvas as addTextOnCanvasAct,
   setMainCanvas,
-  setCanvasClickCoordinates,
+  setCanvasTextCoordinates,
   moveObjectOnCanvas as moveObjectOnCanvasAct,
   scaleObjectOnCanvas as scaleObjectOnCanvasAct,
   rotateObjectOnCanvas as rotateObjectOnCanvasAct,
@@ -15,13 +15,17 @@ import {
   setEditMode,
   initKeyActions,
   sendDeletedFromCanvasObjectsIds,
-  deleteObjectsFromCanvasByIds as deleteObjectsFromCanvasByIdsAct,
+  deleteObjectFromCanvasById as deleteObjectFromCanvasByIdAct,
   setCanvasZoom,
-  setUserInputFieldCoordinates,
+  setTextInputFieldCoordinates,
   setPresetText,
   setEditedTextId,
   sendCursorTrackingData,
   moveCursorOnCanvas,
+  setRightButtonClickFlag,
+  setCanvasClickedObject,
+  setScreenRightClickCoordinates,
+  setCanvasRightClickCoordinates,
 } from "../components/Slate/store/slices"
 import { fabric } from "fabric"
 import {
@@ -55,7 +59,7 @@ import { addPictureOnCanvas } from "./picture/pictureService"
 import { initDelKeyAction } from "./keyActions/keyActionsService"
 import {
   deletSelectedActions,
-  deleteObjectsFromCanvasByIds,
+  deleteObjectFromCanvasById,
 } from "./canvasObjectDeletion/selectedObjectsDeletService"
 import { initCanvasResizing } from "./canvasResizing/canvasResizingService"
 import {
@@ -66,6 +70,7 @@ import {
   turnOffSvgDrawingMode,
   turnOnSvgDrawingMode,
 } from "./svgDrawing/svgService"
+import { turnOnMouseRightClickTracking } from "./mouseClickTracking/mouseRightClickTrackingService"
 //import { initEventHandlers } from "./canvasEvents/canvasEventsService"
 
 //Вынеси это в отдельный файл
@@ -109,6 +114,22 @@ const fabCanvasMiddleware = (): Middleware => {
         },
       )
 
+      turnOnMouseRightClickTracking(
+        canvas,
+        (rightButtonClickFlag) => {
+          store.dispatch(setRightButtonClickFlag(rightButtonClickFlag))
+        },
+        (canvasClickPoint) => {
+          store.dispatch(setCanvasRightClickCoordinates(canvasClickPoint))
+        },
+        (screenClickPoint) => {
+          store.dispatch(setScreenRightClickCoordinates(screenClickPoint))
+        },
+        (canvasClickedObject) => {
+          store.dispatch(setCanvasClickedObject(canvasClickedObject))
+        },
+      )
+
       initCanvasManipulation(
         canvas,
         store.getState().playground?.activeBlackboardId,
@@ -129,10 +150,10 @@ const fabCanvasMiddleware = (): Middleware => {
         canvasState,
         () => store.dispatch(setEditMode(EditMode.Text)),
         (canvasClickPoint) => {
-          store.dispatch(setCanvasClickCoordinates(canvasClickPoint))
+          store.dispatch(setCanvasTextCoordinates(canvasClickPoint))
         },
         (screenClickPoint) => {
-          store.dispatch(setUserInputFieldCoordinates(screenClickPoint))
+          store.dispatch(setTextInputFieldCoordinates(screenClickPoint))
         },
         (presetText) => {
           store.dispatch(setPresetText(presetText))
@@ -151,7 +172,7 @@ const fabCanvasMiddleware = (): Middleware => {
         action.payload,
         zoomCallbacksList,
         (x, y) => {
-          store.dispatch(setUserInputFieldCoordinates({ x: x, y: y }))
+          store.dispatch(setTextInputFieldCoordinates({ x: x, y: y }))
         },
         (editedTextId) => {
           store.dispatch(sendDeletedFromCanvasObjectsIds([editedTextId]))
@@ -222,7 +243,7 @@ const fabCanvasMiddleware = (): Middleware => {
       turnOffShapeDrawingMode()
       turnOffSvgDrawingMode()
       //removeCanvasMouseEvents(canvas)
-      store.dispatch(setCanvasClickCoordinates(null))
+      store.dispatch(setCanvasTextCoordinates(null))
 
       switch (editMode) {
         case EditMode.None:
@@ -237,10 +258,10 @@ const fabCanvasMiddleware = (): Middleware => {
             canvas,
             canvasState,
             (canvasClickPoint) => {
-              store.dispatch(setCanvasClickCoordinates(canvasClickPoint))
+              store.dispatch(setCanvasTextCoordinates(canvasClickPoint))
             },
             (screenClickPoint) => {
-              store.dispatch(setUserInputFieldCoordinates(screenClickPoint))
+              store.dispatch(setTextInputFieldCoordinates(screenClickPoint))
             },
             (presetText) => {
               store.dispatch(setPresetText(presetText))
@@ -280,8 +301,8 @@ const fabCanvasMiddleware = (): Middleware => {
       addObjectOnCanvas(store.getState().playground.mainCanvas, action.payload)
     }
 
-    if (deleteObjectsFromCanvasByIdsAct.match(action)) {
-      deleteObjectsFromCanvasByIds(
+    if (deleteObjectFromCanvasByIdAct.match(action)) {
+      deleteObjectFromCanvasById(
         store.getState().playground.mainCanvas,
         action.payload,
       )

@@ -4,9 +4,9 @@ import type { FabObjectWithId } from "../../components/Slate/types"
 import type {
   ICanvasObject,
   IFontProperties,
-  IScreenCoordinates,
+  ICoordinates,
 } from "../../components/Slate/store/types"
-import { deleteObjectsFromCanvasByIds } from "../canvasObjectDeletion/selectedObjectsDeletService"
+import { deleteObjectFromCanvasById } from "../canvasObjectDeletion/selectedObjectsDeletService"
 import {
   removeCanvasHandler,
   tryAddCanvasHandler,
@@ -25,7 +25,7 @@ const transparent = "rgba(0,0,0,0)"
 let zoomCallback: () => void
 let isFirstClick: boolean = true
 
-function CreateTextEditMarkerShape(canvasClickPoint: IScreenCoordinates) {
+function CreateTextEditMarkerShape(canvasClickPoint: ICoordinates) {
   return new fabric.Ellipse({
     left: canvasClickPoint.x,
     top: canvasClickPoint.y,
@@ -41,14 +41,12 @@ function CreateTextEditMarkerShape(canvasClickPoint: IScreenCoordinates) {
 function initTextEditing(
   canvas: fabric.Canvas,
   canvasState: ICanvasState,
-  eventPoint: IScreenCoordinates,
+  eventPoint: ICoordinates,
   zoomCallbacksSet: Set<() => void>,
   text: string | null,
   textId: number | string | null,
-  canvasClickCoordinatesSetter: (canvasClickPoint: IScreenCoordinates) => void,
-  userInputFieldCoordinatesSetter: (
-    screenClickPoint: IScreenCoordinates,
-  ) => void,
+  canvasClickCoordinatesSetter: (canvasClickPoint: ICoordinates) => void,
+  userInputFieldCoordinatesSetter: (screenClickPoint: ICoordinates) => void,
   presetTextSetter: (presetText: string | null) => void,
   textIdSetter: (textId: number | string | null) => void,
 ) {
@@ -108,10 +106,8 @@ function initTextDblClickEditing(
   canvas: fabric.Canvas,
   canvasState: ICanvasState,
   textEditModeSetter: () => void,
-  canvasClickCoordinatesSetter: (canvasClickPoint: IScreenCoordinates) => void,
-  userInputFieldCoordinatesSetter: (
-    screenClickPoint: IScreenCoordinates,
-  ) => void,
+  canvasClickCoordinatesSetter: (canvasClickPoint: ICoordinates) => void,
+  userInputFieldCoordinatesSetter: (screenClickPoint: ICoordinates) => void,
   presetTextSetter: (presetText: string | null) => void,
   textIdSetter: (textId: number | string | null) => void,
   zoomCallbacksSet: Set<() => void>,
@@ -151,10 +147,8 @@ function initTextDblClickEditing(
 function turnOnTextEditMode(
   canvas: fabric.Canvas,
   canvasState: ICanvasState,
-  canvasClickCoordinatesSetter: (canvasClickPoint: IScreenCoordinates) => void,
-  userInputFieldCoordinatesSetter: (
-    screenClickPoint: IScreenCoordinates,
-  ) => void,
+  canvasClickCoordinatesSetter: (canvasClickPoint: ICoordinates) => void,
+  userInputFieldCoordinatesSetter: (screenClickPoint: ICoordinates) => void,
   presetTextSetter: (presetText: string | null) => void,
   textIdSetter: (textId: number | string | null) => void,
   zoomCallbacksSet: Set<() => void>,
@@ -183,7 +177,7 @@ function turnOnTextEditMode(
 }
 
 function turnOffTextEditMode(canvas: fabric.Canvas) {
-  deleteObjectsFromCanvasByIds(canvas, textEditMarker)
+  deleteObjectFromCanvasById(canvas, textEditMarker)
 
   removeCanvasHandler("mouse:down", textMouseDownName)
   removeCanvasHandler("object:added", textAddName)
@@ -202,7 +196,7 @@ function addTextOnCanvas(
 ) {
   zoomCallbacksSet.delete(zoomCallback)
 
-  deleteObjectsFromCanvasByIds(canvas, textEditMarker)
+  deleteObjectFromCanvasById(canvas, textEditMarker)
 
   isFirstClick = true
 
@@ -212,7 +206,7 @@ function addTextOnCanvas(
 
   if (!text) return
 
-  const coordinates: IScreenCoordinates = boardText?.coordinates
+  const coordinates: ICoordinates = boardText?.coordinates
 
   if (!coordinates) return
 
@@ -264,6 +258,8 @@ function addTextOnCanvas(
     top: fabText.top ?? 0,
     scaleX: fabText.scaleX ?? 0,
     scaleY: fabText.scaleY ?? 0,
+    skewX: fabText.skewX ?? 0,
+    skewY: fabText.skewY ?? 0,
     angle: fabText.angle ?? 0,
     blackboardId: blackboardId,
   })

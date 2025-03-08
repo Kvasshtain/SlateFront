@@ -3,7 +3,7 @@ import { Fragment } from "react/jsx-runtime"
 import type { KeyboardEvent, FocusEvent } from "react"
 import type React from "react"
 import styles from "./TextInput.module.css"
-import type { IFontProperties, IScreenCoordinates } from "../../store/types"
+import type { IFontProperties, ICoordinates } from "../../store/types"
 import { addTextOnCanvas } from "../../store/slices"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 
@@ -26,7 +26,7 @@ const TextInput: React.FC<ITextInputProps> = (props) => {
   const divBlockRef = useRef<HTMLDivElement>(null)
   const textAreaRef = useRef<HTMLTextAreaElement>(null)
   const [textContent, setTextContent] = useState<string>("")
-  const [initCoordinates] = useState<IScreenCoordinates>({ x: textX, y: textY })
+  const [initCoordinates] = useState<ICoordinates>({ x: textX, y: textY })
   //setTextContent(value)
   const state = useAppSelector((state) => state.playground)
   const dispatch = useAppDispatch()

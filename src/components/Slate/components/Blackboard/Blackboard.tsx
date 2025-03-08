@@ -3,13 +3,16 @@ import { useNavigate } from "react-router"
 import { useAppDispatch, useAppSelector } from "../../../../app/hooks"
 import {
   addTextOnCanvas,
+  deleteObjectFromCanvasById,
   enterBlackboard,
   requestAllCanvasObjects,
+  sendDeletedFromCanvasObjectsIds,
   setBorderColor,
   setDrawingShapeKind,
   setEditMode,
   setHubConnection,
   setMainColor,
+  setRightButtonClickFlag,
   startConnecting,
 } from "../../store/slices"
 //import type { IScreenCoordinates } from "../../store/types"
@@ -23,10 +26,14 @@ import TextInput from "../TextInput"
 
 import React from "react"
 import Dropdown from "../Dropdown"
-import MenuItem from "../Dropdown/components/MenuItem"
 import { Behaviour, type IDropdownProps } from "../Dropdown/types"
 import UserPanel from "../UserPanel"
 import createHubConnection from "../../../../signalR/createHubConnection"
+import styled from "styled-components"
+import { stat } from "fs"
+import { FabObjectWithId } from "../../types"
+import MenuItem from "../Dropdown/components/MenuItem"
+import CanvasContextMenu from "../CanvasContextMenu"
 
 const tokenKey = "accessToken"
 
@@ -106,7 +113,7 @@ const Blackboard: React.FC = () => {
     dispatch(
       addTextOnCanvas({
         text: text.trim(),
-        coordinates: state.canvasClickCoordinates,
+        coordinates: state.canvasTextCoordinates,
         style: fontProperty,
         editedTextId: state.editedTextId,
       }),
@@ -150,6 +157,17 @@ const Blackboard: React.FC = () => {
 
   const addSvgButtonClickHandler = () => {
     dispatch(setEditMode(EditMode.Svg))
+  }
+
+  const deleteObjectButtonHandler = () => {
+    const obj = state.canvasClickedObject
+
+    if (!obj) return
+
+    const deletedObjId = obj.id
+
+    dispatch(sendDeletedFromCanvasObjectsIds([deletedObjId]))
+    dispatch(setRightButtonClickFlag(false))
   }
 
   //Вынеси в отдельный файл
@@ -205,17 +223,18 @@ const Blackboard: React.FC = () => {
         <button onClick={addSvgButtonClickHandler}>Add svg flag</button>
         <UserPanel />
       </div>
-      {state.userInputFieldCoordinates?.x &&
-        state.userInputFieldCoordinates?.y &&
+      {state.userTextInputFieldCoordinates?.x &&
+        state.userTextInputFieldCoordinates?.y &&
         state.editMode === EditMode.Text && (
           <TextInput
-            textX={state.userInputFieldCoordinates.x}
-            textY={state.userInputFieldCoordinates.y}
+            textX={state.userTextInputFieldCoordinates.x}
+            textY={state.userTextInputFieldCoordinates.y}
             value={state.presetText}
             fontProperty={fontProperty}
             onEndTextEditing={onEndTextEditingHandler}
           />
         )}
+      <CanvasContextMenu />
     </React.Fragment>
   )
 }

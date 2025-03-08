@@ -17,7 +17,7 @@ const deletSelectedActions = (
   }
 }
 
-const deleteObjectsFromCanvasById = (
+const deleteObjectFromCanvasById = (
   canvas: fabric.Canvas,
   id: number | string,
 ) => {
@@ -42,7 +42,4 @@ const deleteObjectsFromCanvasById = (
   canvas.renderAll()
 }
 
-export {
-  deletSelectedActions,
-  deleteObjectsFromCanvasById as deleteObjectsFromCanvasByIds,
-}
+export { deletSelectedActions, deleteObjectFromCanvasById }
